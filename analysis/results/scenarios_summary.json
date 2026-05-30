@@ -1,0 +1,29 @@
+{
+  "A": {
+    "label": "Windbreak trees (N edge)",
+    "wind_delta_mean": -0.015,
+    "wind_delta_p90": 0.001,
+    "frac_wind_improved": 0.017,
+    "utci_delta_mean": 0.03,
+    "utci_delta_p90": 0.0,
+    "frac_utci_improved": 0.03
+  },
+  "B": {
+    "label": "Asphalt \u2192 grass surface",
+    "wind_delta_mean": 0.0,
+    "wind_delta_p90": 0.0,
+    "frac_wind_improved": 0.0,
+    "utci_delta_mean": -0.142,
+    "utci_delta_p90": 0.021,
+    "frac_utci_improved": 0.0
+  },
+  "C": {
+    "label": "Windbreak + grass (combined)",
+    "wind_delta_mean": -0.02,
+    "wind_delta_p90": 0.264,
+    "frac_wind_improved": 0.153,
+    "utci_delta_mean": -0.11,
+    "utci_delta_p90": 0.023,
+    "frac_utci_improved": 0.027
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "site": {
+    "lat": 43.254,
+    "lon": 76.906,
+    "polygon": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            76.9038,
+            43.2527
+          ],
+          [
+            76.9082,
+            43.2527
+          ],
+          [
+            76.9082,
+            43.2553
+          ],
+          [
+            76.9038,
+            43.2553
+          ],
+          [
+            76.9038,
+            43.2527
+          ]
+        ]
+      ]
+    }
+  },
+  "wind": {
+    "mean_ms": 3.28,
+    "max_ms": 9.13,
+    "frac_gt5ms": 0.152,
+    "frac_gt3ms": 0.525
+  },
+  "sun": {
+    "mean_hrs_day": 6.21,
+    "frac_lt1h": 0.063,
+    "frac_lt2h": 0.066
+  },
+  "utci": {
+    "mean_c": -0.22,
+    "frac_cold_stress": 0.0,
+    "frac_strong_cold": 0.0
+  }
+}

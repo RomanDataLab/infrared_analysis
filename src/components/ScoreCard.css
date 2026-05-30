@@ -1,0 +1,351 @@
+/* ── ScoreCard overlay ──────────────────────────────────────────────────── */
+.sc-overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 340px;
+  z-index: 9999;
+  display: flex;
+  align-items: stretch;
+  pointer-events: none;
+}
+
+.sc-card {
+  position: relative;
+  flex: 1;
+  background: rgba(8, 14, 30, 0.97);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  overflow-y: auto;
+  padding: 20px 18px 24px;
+  pointer-events: all;
+  animation: sc-slide-in 0.22s ease;
+}
+
+@keyframes sc-slide-in {
+  from { transform: translateX(24px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+.sc-card::-webkit-scrollbar { width: 3px; }
+.sc-card::-webkit-scrollbar-track { background: transparent; }
+.sc-card::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+}
+
+/* Close */
+.sc-close {
+  position: sticky;
+  top: 0;
+  float: right;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0 0 4px 8px;
+  line-height: 1;
+  transition: color 0.15s;
+  z-index: 10;
+}
+.sc-close:hover { color: rgba(255, 255, 255, 0.8); }
+
+/* Header: grade badge + title */
+.sc-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.sc-grade-badge {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+
+.sc-grade-letter {
+  font-size: 24px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+}
+
+.sc-grade-label {
+  font-size: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.sc-title-block {
+  flex: 1;
+  min-width: 0;
+}
+
+.sc-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(224, 232, 255, 0.9);
+  line-height: 1.35;
+  margin-bottom: 10px;
+}
+
+.sc-score-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sc-score-track {
+  flex: 1;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.sc-score-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.sc-score-num {
+  font-size: 18px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.sc-score-unit {
+  font-size: 11px;
+  color: rgba(224, 232, 255, 0.3);
+}
+
+/* Sections */
+.sc-section {
+  margin-bottom: 18px;
+}
+
+.sc-section-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.25);
+  margin-bottom: 10px;
+}
+
+/* Component score bars */
+.sc-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 7px;
+}
+
+.sc-bar-label {
+  font-size: 11px;
+  color: rgba(224, 232, 255, 0.55);
+  width: 110px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sc-bar-track {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.sc-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+  opacity: 0.85;
+}
+
+.sc-bar-val {
+  font-size: 11px;
+  color: rgba(224, 232, 255, 0.5);
+  width: 26px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Key stats grid */
+.sc-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.sc-stat {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 8px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.sc-stat-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(224, 232, 255, 0.9);
+  font-variant-numeric: tabular-nums;
+}
+
+.sc-stat-unit {
+  font-size: 9px;
+  color: rgba(224, 232, 255, 0.3);
+  text-align: center;
+}
+
+/* Scenario rows */
+.sc-scenario {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 6px;
+  position: relative;
+}
+
+.sc-scenario--best {
+  border-color: rgba(76, 175, 80, 0.35);
+  background: rgba(76, 175, 80, 0.05);
+}
+
+.sc-scenario-key {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(224, 232, 255, 0.35);
+  flex-shrink: 0;
+  margin-top: 2px;
+  width: 20px;
+}
+
+.sc-scenario-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.sc-scenario-label {
+  font-size: 11px;
+  color: rgba(224, 232, 255, 0.75);
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.sc-scenario-delta {
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.sc-dot {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 8px;
+}
+
+.sc-scenario-frac {
+  color: rgba(224, 232, 255, 0.35);
+}
+
+.sc-best-tag {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #4caf50;
+  background: rgba(76, 175, 80, 0.12);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+/* ── Financial summary on best-scenario row ─────────────────────────────────── */
+.sc-scenario-finance {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.sc-fin-roi {
+  font-weight: 700;
+}
+
+.sc-fin-val {
+  color: rgba(224, 232, 255, 0.65);
+}
+
+.sc-fin-stranded {
+  margin-left: auto;
+  color: #f44336;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+/* Heatmap thumbnails */
+.sc-thumbs {
+  display: flex;
+  gap: 8px;
+}
+
+.sc-thumb-link {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+}
+
+.sc-thumb {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: opacity 0.15s;
+}
+
+.sc-thumb:hover {
+  opacity: 0.85;
+}
+
+.sc-thumb-label {
+  font-size: 9px;
+  color: rgba(224, 232, 255, 0.3);
+  text-transform: capitalize;
+  letter-spacing: 0.3px;
+}

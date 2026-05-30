@@ -1,0 +1,53 @@
+{
+  "site_key": "mecca",
+  "site_name": "Mecca \u2014 Masjid al-Haram surrounds",
+  "climate": "hot",
+  "composite_score": 84.8,
+  "grade": "F  Critical  \u2014 fix immediately",
+  "components": {
+    "Wind stagnation": 23.9,
+    "Solar overexposure": 100.0,
+    "Heat stress": 100.0
+  },
+  "key_stats": {
+    "wind_mean_ms": 2.03,
+    "sun_mean_h_day": 10.25,
+    "utci_mean_c": 47.41
+  },
+  "best_intervention": {
+    "key": "D",
+    "label": "200m canopy shade structure",
+    "wind_improv_ms": 0.261,
+    "utci_improv_c": 1.028
+  },
+  "all_scenarios": {
+    "A": {
+      "label": "Date palm shade grid (145 trees, courtyard)",
+      "wind_improv_ms": -0.0,
+      "utci_improv_c": 0.075,
+      "frac_wind_pct": 0.1,
+      "frac_utci_pct": 5.0
+    },
+    "B": {
+      "label": "Asphalt -> pale concrete (high-albedo paving)",
+      "wind_improv_ms": -0.0,
+      "utci_improv_c": -0.024,
+      "frac_wind_pct": 0.0,
+      "frac_utci_pct": 0.0
+    },
+    "C": {
+      "label": "145 date palms + pale concrete (combined)",
+      "wind_improv_ms": -0.001,
+      "utci_improv_c": 0.051,
+      "frac_wind_pct": 0.4,
+      "frac_utci_pct": 5.0
+    },
+    "D": {
+      "label": "200m canopy shade structure",
+      "wind_improv_ms": 0.261,
+      "utci_improv_c": 1.028,
+      "frac_wind_pct": 69.0,
+      "frac_utci_pct": 16.6
+    }
+  }
+}

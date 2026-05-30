@@ -1,0 +1,529 @@
+
+  RenovationMap — enrichment detector
+  ══════════════════════════════════════════════════════════
+  overturemaps library : ✓ installed
+
+  Almaty — Medeu/Dostyk Embassy Row
+    STALE — needs rerun
+    no ndvi_trees.json,  Overture: not yet cached
+    • overturemaps installed but Overture buildings not in cache
+
+  Riyadh — Al-Murabba / Diriyah Gate
+    STALE — needs rerun
+    no ndvi_trees.json,  Overture: not yet cached
+    • overturemaps installed but Overture buildings not in cache
+
+  Astana — Bayterek / Nurzhol Blvd
+    up-to-date
+    no ndvi_trees.json,  Overture cached: 427
+
+  Mecca — Masjid al-Haram surrounds
+    STALE — needs rerun
+    no ndvi_trees.json,  Overture: not yet cached
+    • overturemaps installed but Overture buildings not in cache
+
+
+══════════════════════════════════════════════════════════════
+  REFINING: Almaty — Medeu/Dostyk Embassy Row
+══════════════════════════════════════════════════════════════
+
+       3/5  canopy scenario — skipped (cold site)
+
+  -- 1/5  baseline (OSM + Overture + NDVI) -------------
+No valid base_url provided and INFRARED_BASE_URL env var not set; falling back to DEFAULT_BASE_URL (https://api.infrared.city/v2)
+
+=== Almaty — Medeu/Dostyk Embassy Row ===
+      analysis polygon : 500 m
+      context polygon  : 1500 m  (buildings + vegetation fetch)
+
+[1/6] Fetching buildings (context area 1500 m)...
+      927 buildings (OSM)
+  [overture] bbox (76.9388, 43.2383, 76.9572, 43.2517) ...
+  [overture] 654 Overture buildings returned
+  [overture] +510 new buildings added  (OSM: 927 -> total: 1437)
+[2/6] Fetching vegetation (context area 1500 m)...
+      211 trees (OSM)
+[3/6] Fetching ground materials...
+      layers: ['asphalt', 'concrete', 'vegetation', 'soil', 'water']
+   cached -> fetched_data.json
+[4/6] Finding weather station...
+      KAZ_ALA_Almaty.368700_TMYx.2009-2023
+
+[5a] Wind speed (N-wind (Siberian), 10 m/s)...
+      grid (512, 512)  jobs 4/4
+   ok  baseline_wind.png
+[5b] Direct sun hours (month 12)...
+      grid (512, 512)
+   ok  baseline_sun.png
+[5c] UTCI (month 1)...
+      grid (512, 512)
+   ok  baseline_utci.png
+   bounds (W,S,E,N): [76.944917, 43.242754, 76.951231, 43.247354]
+
+[6/6] Computing stats...
+
+--- BASELINE: Almaty — Medeu/Dostyk Embassy Row ---
+  Wind  2.9 m/s mean | 11% > 5 m/s
+  Sun   5.87 h/day (Dec) | 10% < 1 h/day
+  UTCI  -0.89 deg C (Jan) | 0% cold stress (<-13 C)
+
+  -> results/almaty/  baseline_wind/sun/utci .png + stats.json
+  \-- OK done  (458s)
+
+  -- 2/5  scenarios A/B/C ------------------------------
+No valid base_url provided and INFRARED_BASE_URL env var not set; falling back to DEFAULT_BASE_URL (https://api.infrared.city/v2)
+
+=== Scenarios: Almaty — Medeu/Dostyk Embassy Row ===
+Loading cached fetched data...
+
+-- Scenario A: Windbreak birch trees (3-row, N edge) --
+   wind...
+   ok  scenario_A_wind.png
+   ok  scenario_A_delta_wind.png
+   utci...
+   ok  scenario_A_utci.png
+   ok  scenario_A_delta_utci.png
+   wind improv: +0.000 m/s | utci improv: -0.017 degC
+
+-- Scenario B: Asphalt -> grass (courtyard surface) --
+   utci (ground change only — wind stays at baseline)...
+   ok  scenario_B_utci.png
+   ok  scenario_B_delta_utci.png
+   utci improv: +0.500 degC
+
+-- Scenario C: 3-row windbreak + grass (combined) --
+   wind...
+   ok  scenario_C_wind.png
+   ok  scenario_C_delta_wind.png
+   utci...
+   ok  scenario_C_utci.png
+   ok  scenario_C_delta_utci.png
+   wind improv: +0.012 m/s | utci improv: +0.481 degC
+
+--- SCENARIOS COMPLETE: Almaty — Medeu/Dostyk Embassy Row ---
+  [A] Windbreak birch trees (3-row, N edge)
+       wind improv +0.000 m/s  (0% cells)
+       utci improv -0.017 degC  (0% cells)
+  [B] Asphalt -> grass (courtyard surface)
+       wind improv +0.000 m/s  (0% cells)
+       utci improv +0.500 degC  (33% cells)
+  [C] 3-row windbreak + grass (combined)
+       wind improv +0.012 m/s  (5% cells)
+       utci improv +0.481 degC  (33% cells)
+  \-- OK done  (54s)
+
+  -- 4/5  score ----------------------------------------
+
+==============================================================
+  RENOVATION PRIORITY SCORE  [WINTER COLD]
+  Almaty — Medeu/Dostyk Embassy Row
+==============================================================
+  COMPOSITE     4.0 / 100   A  Good      — no urgent intervention needed
+--------------------------------------------------------------
+  Wind trap                11.3 / 100
+  Solar deficit             0.3 / 100
+  Cold stress               0.0 / 100
+--------------------------------------------------------------
+  Wind mean 2.9 m/s  |  Sun 5.87 h/day  |  UTCI -0.89 degC
+--------------------------------------------------------------
+  Interventions:
+    [A] Windbreak birch trees (3-row, N edge)
+         wind +0.000 m/s  utci -0.017 degC  (0% cells better)
+    [B] Asphalt -> grass (courtyard surface)
+         wind +0.000 m/s  utci +0.500 degC  (33% cells better)
+    [C] 3-row windbreak + grass (combined)
+         wind +0.012 m/s  utci +0.481 degC  (33% cells better)
+--------------------------------------------------------------
+  Best: [B] Asphalt -> grass (courtyard surface)
+        wind +0.000 m/s  utci +0.500 degC
+==============================================================
+  -> results/almaty/courtyard_score.json
+  \-- OK done  (1s)
+
+  -- 5/5  export web assets ----------------------------
+
+=== Exporting web assets ===
+  Target: C:\12_CODINGHARD\infrared\public
+  [almaty] copied 17 PNG(s)
+  [riyadh] copied 21 PNG(s)
+  [astana] copied 17 PNG(s)
+  [mecca] copied 21 PNG(s)
+
+  Wrote renovation_data.json
+    4 main sites, 20 batch courtyards
+
+  To rebuild the map run:
+    npm run dev   (inside C:\12_CODINGHARD\infrared)
+  \-- OK done  (1s)
+
+  ┌── Almaty — Medeu/Dostyk Embassy Row ────────────────────────
+  │  Input data
+  │    Buildings total           927  →       1437   (+510 Overture added)
+  │    Of which Overture          0  →        510
+  │    NDVI trees                 0  →          0
+  │  ──────────────────────────────────────────────────────────
+  │  Simulation results
+  │  UTCI mean                  -0.16 °C  →   -0.89 °C   -0.73  ↓ better
+  │  UTCI bad fraction             0.000  →      0.000   +0.00  =
+  │  Wind mean                  4.11 m/s  →   2.90 m/s   -1.21  ↓ worse
+  │  Sun mean                   6.36 h/d  →   5.87 h/d   -0.49  ↓ worse
+  │  ──────────────────────────────────────────────────────────
+  │  Composite score            20.4/100  →    4.0/100   -16.40  ↓ worse
+  │  Grade                             B  →          A  ← grade changed
+  │  Best scenario [B]  Asphalt -> grass (courtyard su  UTCI +0.50°C
+  └─────────────────────────────────────────────────────────────
+
+══════════════════════════════════════════════════════════════
+  REFINING: Riyadh — Al-Murabba / Diriyah Gate
+══════════════════════════════════════════════════════════════
+
+  -- 1/5  baseline (OSM + Overture + NDVI) -------------
+No valid base_url provided and INFRARED_BASE_URL env var not set; falling back to DEFAULT_BASE_URL (https://api.infrared.city/v2)
+
+=== Riyadh — Al-Murabba / Diriyah Gate ===
+      analysis polygon : 500 m
+      context polygon  : 1500 m  (buildings + vegetation fetch)
+
+[1/6] Fetching buildings (context area 1500 m)...
+      1624 buildings (OSM)
+  [overture] bbox (46.7014, 24.6855, 46.7163, 24.6990) ...
+  [overture] 1189 Overture buildings returned
+  [overture] +732 new buildings added  (OSM: 1624 -> total: 2356)
+[2/6] Fetching vegetation (context area 1500 m)...
+      0 trees (OSM)
+[3/6] Fetching ground materials...
+      layers: ['asphalt', 'concrete', 'vegetation', 'soil', 'water']
+   cached -> fetched_data.json
+[4/6] Finding weather station...
+      SAU_RI_Riyadh.AB.404380_TMYx.2009-2023
+
+[5a] Wind speed (NW Shamal, 6 m/s)...
+      grid (512, 512)  jobs 1/4
+   ok  baseline_wind.png
+[5b] Direct sun hours (month 7)...
+      grid (512, 512)
+   ok  baseline_sun.png
+[5c] UTCI (month 7)...
+      grid (512, 512)
+   ok  baseline_utci.png
+   bounds (W,S,E,N): [46.706363, 24.689976, 46.711425, 24.694576]
+
+[6/6] Computing stats...
+
+--- BASELINE: Riyadh — Al-Murabba / Diriyah Gate ---
+  Wind  2.68 m/s mean | 5% stagnant (<1 m/s)
+  Sun   9.86 h/day (Jul) | 93% > 5 h/day (overexposed)
+  UTCI  46.79 deg C (Jul) | 100% heat stress (>38 C)
+
+  -> results/riyadh/  baseline_wind/sun/utci .png + stats.json
+  \-- OK done  (135s)
+
+  -- 2/5  scenarios A/B/C ------------------------------
+No valid base_url provided and INFRARED_BASE_URL env var not set; falling back to DEFAULT_BASE_URL (https://api.infrared.city/v2)
+
+=== Scenarios: Riyadh — Al-Murabba / Diriyah Gate ===
+Loading cached fetched data...
+
+-- Scenario A: Date palm shade grid (145 trees, courtyard) --
+   wind...
+   ok  scenario_A_wind.png
+   ok  scenario_A_delta_wind.png
+   utci...
+   ok  scenario_A_utci.png
+   ok  scenario_A_delta_utci.png
+   wind improv: +0.000 m/s | utci improv: +0.054 degC
+
+-- Scenario B: Asphalt -> pale concrete (high-albedo paving) --
+   utci (ground change only — wind stays at baseline)...
+   ok  scenario_B_utci.png
+   ok  scenario_B_delta_utci.png
+   utci improv: -0.006 degC
+
+-- Scenario C: 145 date palms + pale concrete (combined) --
+   wind...
+   ok  scenario_C_wind.png
+   ok  scenario_C_delta_wind.png
+   utci...
+   ok  scenario_C_utci.png
+   ok  scenario_C_delta_utci.png
+   wind improv: +0.000 m/s | utci improv: +0.048 degC
+
+--- SCENARIOS COMPLETE: Riyadh — Al-Murabba / Diriyah Gate ---
+  [A] Date palm shade grid (145 trees, courtyard)
+       wind improv +0.000 m/s  (21% cells)
+       utci improv +0.054 degC  (4% cells)
+  [B] Asphalt -> pale concrete (high-albedo paving)
+       wind improv -0.000 m/s  (0% cells)
+       utci improv -0.006 degC  (0% cells)
+  [C] 145 date palms + pale concrete (combined)
+       wind improv +0.000 m/s  (21% cells)
+       utci improv +0.048 degC  (4% cells)
+  \-- OK done  (54s)
+
+  -- 3/5  canopy scenario D ----------------------------
+No valid base_url provided and INFRARED_BASE_URL env var not set; falling back to DEFAULT_BASE_URL (https://api.infrared.city/v2)
+
+=== Canopy Scenario D: Riyadh — Al-Murabba / Diriyah Gate ===
+   Canopy: 200×200 m at 3.5–4.5 m height, centred on polygon
+   Buildings (incl. canopy): 2357
+
+[D] Wind (canopy added)...
+   ok  scenario_D_wind.png
+   ok  scenario_D_delta_wind.png
+[D] UTCI (canopy added)...
+   ok  scenario_D_utci.png
+   ok  scenario_D_delta_utci.png
+
+--- CANOPY RESULT: Riyadh — Al-Murabba / Diriyah Gate ---
+  Wind change:      +0.095 m/s mean  (50% cells)
+  UTCI improvement: +0.582 degC mean  (12% cells)
+  Baseline UTCI:  46.79 degC
+  Canopy   UTCI:  46.20 degC
+  \-- OK done  (20s)
+
+  -- 4/5  score ----------------------------------------
+
+==============================================================
+  RENOVATION PRIORITY SCORE  [SUMMER HEAT]
+  Riyadh — Al-Murabba / Diriyah Gate
+==============================================================
+  COMPOSITE    80.1 / 100   F  Critical  — fix immediately
+--------------------------------------------------------------
+  Wind stagnation           0.3 / 100
+  Solar overexposure      100.0 / 100
+  Heat stress             100.0 / 100
+--------------------------------------------------------------
+  Wind mean 2.68 m/s  |  Sun 9.86 h/day  |  UTCI 46.79 degC
+--------------------------------------------------------------
+  Interventions:
+    [A] Date palm shade grid (145 trees, courtyard)
+         wind +0.000 m/s  utci +0.054 degC  (4% cells better)
+    [B] Asphalt -> pale concrete (high-albedo paving)
+         wind -0.000 m/s  utci -0.006 degC  (0% cells better)
+    [C] 145 date palms + pale concrete (combined)
+         wind +0.000 m/s  utci +0.048 degC  (4% cells better)
+    [D] 200m canopy shade structure
+         wind +0.095 m/s  utci +0.582 degC  (12% cells better)
+--------------------------------------------------------------
+  Best: [D] 200m canopy shade structure
+        wind +0.095 m/s  utci +0.582 degC
+==============================================================
+  -> results/riyadh/courtyard_score.json
+  \-- OK done  (1s)
+
+  -- 5/5  export web assets ----------------------------
+
+=== Exporting web assets ===
+  Target: C:\12_CODINGHARD\infrared\public
+  [almaty] copied 17 PNG(s)
+  [riyadh] copied 21 PNG(s)
+  [astana] copied 17 PNG(s)
+  [mecca] copied 21 PNG(s)
+
+  Wrote renovation_data.json
+    4 main sites, 20 batch courtyards
+
+  To rebuild the map run:
+    npm run dev   (inside C:\12_CODINGHARD\infrared)
+  \-- OK done  (1s)
+
+  ┌── Riyadh — Al-Murabba / Diriyah Gate ───────────────────────
+  │  Input data
+  │    Buildings total          1624  →       2356   (+732 Overture added)
+  │    Of which Overture          0  →        732
+  │    NDVI trees                 0  →          0
+  │  ──────────────────────────────────────────────────────────
+  │  Simulation results
+  │  UTCI mean                  47.25 °C  →   46.79 °C   -0.46  ↓ better
+  │  UTCI bad fraction             1.000  →      1.000   +0.00  =
+  │  Wind mean                  3.40 m/s  →   2.68 m/s   -0.72  ↓ worse
+  │  Sun mean                  10.49 h/d  →   9.86 h/d   -0.63  ↓ worse
+  │  ──────────────────────────────────────────────────────────
+  │  Composite score            80.2/100  →   80.1/100   -0.10  ↓ worse
+  │  Grade                             F  →          F
+  │  Best scenario [D]  200m canopy shade structure  UTCI +0.58°C
+  └─────────────────────────────────────────────────────────────
+
+══════════════════════════════════════════════════════════════
+  REFINING: Mecca — Masjid al-Haram surrounds
+══════════════════════════════════════════════════════════════
+
+  -- 1/5  baseline (OSM + Overture + NDVI) -------------
+No valid base_url provided and INFRARED_BASE_URL env var not set; falling back to DEFAULT_BASE_URL (https://api.infrared.city/v2)
+Vegetation fetch failed
+Traceback (most recent call last):
+  File "C:\Users\DesBuild_01BCN\AppData\Local\Programs\Python\Python312\Lib\site-packages\infrared_sdk\vegetation\service.py", line 121, in _get_geojson
+    r.raise_for_status()
+  File "C:\Users\DesBuild_01BCN\AppData\Local\Programs\Python\Python312\Lib\site-packages\requests\models.py", line 1167, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 504 Server Error: Gateway Timeout for url: https://api.infrared.city/v2/utils/gis/vegetation?latitude=21.430133210923465&longitude=39.80754366393485&distance=363&source=fgb
+
+=== Mecca — Masjid al-Haram surrounds ===
+      analysis polygon : 500 m
+      context polygon  : 1500 m  (buildings + vegetation fetch)
+
+[1/6] Fetching buildings (context area 1500 m)...
+      1264 buildings (OSM)
+  [overture] bbox (39.8063, 21.4198, 39.8208, 21.4333) ...
+  [overture] 800 Overture buildings returned
+  [overture] +738 new buildings added  (OSM: 1264 -> total: 2002)
+[2/6] Fetching vegetation (context area 1500 m)...
+      7 trees (OSM)
+      (sparse — 7 trees below threshold; passing None so API uses its own vegetation data)
+[3/6] Fetching ground materials...
+      layers: ['asphalt', 'concrete', 'vegetation', 'soil', 'water']
+   cached -> fetched_data.json
+[4/6] Finding weather station...
+      SAU_MK_Mecca.410300_TMYx.2009-2023
+
+[5a] Wind speed (NW valley breeze, 4 m/s)...
+      grid (512, 512)  jobs 4/4
+   ok  baseline_wind.png
+[5b] Direct sun hours (month 7)...
+      grid (512, 512)
+   ok  baseline_sun.png
+[5c] UTCI (month 7)...
+      grid (512, 512)
+   ok  baseline_utci.png
+   bounds (W,S,E,N): [39.811133, 21.424276, 39.816074, 21.428876]
+
+[6/6] Computing stats...
+
+--- BASELINE: Mecca — Masjid al-Haram surrounds ---
+  Wind  2.03 m/s mean | 22% stagnant (<1 m/s)
+  Sun   10.25 h/day (Jul) | 96% > 5 h/day (overexposed)
+  UTCI  47.41 deg C (Jul) | 100% heat stress (>38 C)
+
+  -> results/mecca/  baseline_wind/sun/utci .png + stats.json
+  \-- OK done  (167s)
+
+  -- 2/5  scenarios A/B/C ------------------------------
+No valid base_url provided and INFRARED_BASE_URL env var not set; falling back to DEFAULT_BASE_URL (https://api.infrared.city/v2)
+
+=== Scenarios: Mecca — Masjid al-Haram surrounds ===
+Loading cached fetched data...
+
+-- Scenario A: Date palm shade grid (145 trees, courtyard) --
+   wind...
+   ok  scenario_A_wind.png
+   ok  scenario_A_delta_wind.png
+   utci...
+   ok  scenario_A_utci.png
+   ok  scenario_A_delta_utci.png
+   wind improv: -0.000 m/s | utci improv: +0.075 degC
+
+-- Scenario B: Asphalt -> pale concrete (high-albedo paving) --
+   utci (ground change only — wind stays at baseline)...
+   ok  scenario_B_utci.png
+   ok  scenario_B_delta_utci.png
+   utci improv: -0.024 degC
+
+-- Scenario C: 145 date palms + pale concrete (combined) --
+   wind...
+   ok  scenario_C_wind.png
+   ok  scenario_C_delta_wind.png
+   utci...
+   ok  scenario_C_utci.png
+   ok  scenario_C_delta_utci.png
+   wind improv: -0.001 m/s | utci improv: +0.051 degC
+
+--- SCENARIOS COMPLETE: Mecca — Masjid al-Haram surrounds ---
+  [A] Date palm shade grid (145 trees, courtyard)
+       wind improv -0.000 m/s  (0% cells)
+       utci improv +0.075 degC  (5% cells)
+  [B] Asphalt -> pale concrete (high-albedo paving)
+       wind improv -0.000 m/s  (0% cells)
+       utci improv -0.024 degC  (0% cells)
+  [C] 145 date palms + pale concrete (combined)
+       wind improv -0.001 m/s  (0% cells)
+       utci improv +0.051 degC  (5% cells)
+  \-- OK done  (49s)
+
+  -- 3/5  canopy scenario D ----------------------------
+No valid base_url provided and INFRARED_BASE_URL env var not set; falling back to DEFAULT_BASE_URL (https://api.infrared.city/v2)
+
+=== Canopy Scenario D: Mecca — Masjid al-Haram surrounds ===
+   Canopy: 200×200 m at 3.5–4.5 m height, centred on polygon
+   Buildings (incl. canopy): 2003
+
+[D] Wind (canopy added)...
+   ok  scenario_D_wind.png
+   ok  scenario_D_delta_wind.png
+[D] UTCI (canopy added)...
+   ok  scenario_D_utci.png
+   ok  scenario_D_delta_utci.png
+
+--- CANOPY RESULT: Mecca — Masjid al-Haram surrounds ---
+  Wind change:      +0.261 m/s mean  (69% cells)
+  UTCI improvement: +1.028 degC mean  (17% cells)
+  Baseline UTCI:  47.41 degC
+  Canopy   UTCI:  46.38 degC
+  \-- OK done  (18s)
+
+  -- 4/5  score ----------------------------------------
+
+==============================================================
+  RENOVATION PRIORITY SCORE  [SUMMER HEAT]
+  Mecca — Masjid al-Haram surrounds
+==============================================================
+  COMPOSITE    84.8 / 100   F  Critical  — fix immediately
+--------------------------------------------------------------
+  Wind stagnation          23.9 / 100
+  Solar overexposure      100.0 / 100
+  Heat stress             100.0 / 100
+--------------------------------------------------------------
+  Wind mean 2.03 m/s  |  Sun 10.25 h/day  |  UTCI 47.41 degC
+--------------------------------------------------------------
+  Interventions:
+    [A] Date palm shade grid (145 trees, courtyard)
+         wind -0.000 m/s  utci +0.075 degC  (5% cells better)
+    [B] Asphalt -> pale concrete (high-albedo paving)
+         wind -0.000 m/s  utci -0.024 degC  (0% cells better)
+    [C] 145 date palms + pale concrete (combined)
+         wind -0.001 m/s  utci +0.051 degC  (5% cells better)
+    [D] 200m canopy shade structure
+         wind +0.261 m/s  utci +1.028 degC  (17% cells better)
+--------------------------------------------------------------
+  Best: [D] 200m canopy shade structure
+        wind +0.261 m/s  utci +1.028 degC
+==============================================================
+  -> results/mecca/courtyard_score.json
+  \-- OK done  (1s)
+
+  -- 5/5  export web assets ----------------------------
+
+=== Exporting web assets ===
+  Target: C:\12_CODINGHARD\infrared\public
+  [almaty] copied 17 PNG(s)
+  [riyadh] copied 21 PNG(s)
+  [astana] copied 17 PNG(s)
+  [mecca] copied 21 PNG(s)
+
+  Wrote renovation_data.json
+    4 main sites, 20 batch courtyards
+
+  To rebuild the map run:
+    npm run dev   (inside C:\12_CODINGHARD\infrared)
+  \-- OK done  (1s)
+
+  ┌── Mecca — Masjid al-Haram surrounds ────────────────────────
+  │  Input data
+  │    Buildings total          2002  →       2002   (+0 Overture added)
+  │    Of which Overture        738  →        738
+  │    NDVI trees                 0  →          0
+  │  ──────────────────────────────────────────────────────────
+  │  Simulation results
+  │  UTCI mean                  47.41 °C  →   47.41 °C   +0.00  =
+  │  UTCI bad fraction             1.000  →      1.000   +0.00  =
+  │  Wind mean                  2.03 m/s  →   2.03 m/s   +0.00  =
+  │  Sun mean                  10.25 h/d  →  10.25 h/d   +0.00  =
+  │  ──────────────────────────────────────────────────────────
+  │  Composite score            84.8/100  →   84.8/100   +0.00  =
+  │  Grade                             F  →          F
+  │  Best scenario [D]  200m canopy shade structure  UTCI +1.03°C
+  └─────────────────────────────────────────────────────────────
+
+══════════════════════════════════════════════════════════════
+  COMPLETE  (16.0 min)
+  Refined : almaty, riyadh, mecca
+══════════════════════════════════════════════════════════════

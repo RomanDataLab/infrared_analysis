@@ -1,0 +1,330 @@
+/* ── City map panel ──────────────────────────────────────────────────────── */
+.city-map {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  position: relative;
+  background: #0a0e1a;
+}
+
+/* ── Top bar ── */
+.city-bar {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 9px 16px;
+  background: rgba(8, 12, 24, 0.97);
+  border-left: 4px solid #fbc02d;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-wrap: nowrap;   /* never wrap — meta is capped so everything fits in one row */
+  overflow: hidden;
+  position: relative;
+  z-index: 10;
+}
+
+.city-grade {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.city-grade:hover { opacity: 0.8; }
+
+.city-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  max-width: 120px;   /* cap long site names so the bar fits in one row */
+  flex-shrink: 0;
+}
+
+.city-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(224, 232, 255, 0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.city-score {
+  font-size: 20px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.city-score-denom {
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(224, 232, 255, 0.3);
+}
+
+/* Maximize / restore button */
+.city-maximize-btn {
+  margin-left: 4px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 5px;
+  color: rgba(224, 232, 255, 0.35);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.city-maximize-btn:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(224, 232, 255, 0.85);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+.city-maximize-btn.active {
+  background: rgba(251, 192, 45, 0.10);
+  border-color: rgba(251, 192, 45, 0.45);
+  color: #fbc02d;
+}
+
+/* Layer buttons */
+.city-layers {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.layer-btn {
+  padding: 4px 12px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: rgba(224, 232, 255, 0.45);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.layer-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(224, 232, 255, 0.8);
+}
+.layer-btn.active {
+  background: rgba(255, 255, 255, 0.07);
+}
+.layer-btn.layer-btn-off {
+  opacity: 0.38;
+  text-decoration: line-through;
+}
+
+/* Key stats */
+.city-stats {
+  font-size: 11px;
+  color: rgba(224, 232, 255, 0.4);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 1;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.stat-dot {
+  color: rgba(255, 255, 255, 0.15);
+}
+
+/* ── Leaflet canvas ── */
+.city-canvas {
+  flex: 1;
+  min-height: 0;
+  isolation: isolate;
+}
+
+/* Override Leaflet's default light theme to fit dark UI */
+.city-canvas .leaflet-container {
+  background: #1a1a2e;
+  font-family: inherit;
+}
+
+/* Smooth crossfade when switching heatmap layers */
+.city-canvas .leaflet-image-layer {
+  transition: opacity 0.2s ease;
+}
+
+/* Scale bar — dark theme */
+.city-canvas .leaflet-control-scale-line {
+  background: rgba(8, 12, 24, 0.78);
+  border-color: rgba(224, 232, 255, 0.35) !important;
+  border-top: none !important;
+  color: rgba(224, 232, 255, 0.60);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  padding: 1px 4px;
+}
+
+.city-canvas .leaflet-control-zoom a {
+  background: rgba(8, 12, 24, 0.9) !important;
+  color: rgba(224, 232, 255, 0.7) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+.city-canvas .leaflet-control-zoom a:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #fff !important;
+}
+
+/* ── Bottom footer ── */
+.city-footer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 16px;
+  background: rgba(8, 12, 24, 0.95);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 11px;
+  position: relative;
+  z-index: 10;
+}
+
+.footer-prefix {
+  color: rgba(224, 232, 255, 0.3);
+  flex-shrink: 0;
+}
+
+.footer-label {
+  color: rgba(224, 232, 255, 0.65);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.footer-gain {
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ── Finance strip ─────────────────────────────────────────────────────────── */
+.city-finance {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 16px;
+  background: rgba(5, 8, 16, 0.98);
+  border-top: 1px solid rgba(251, 192, 45, 0.09);
+  font-size: 11px;
+  position: relative;
+  z-index: 10;
+}
+
+.finance-prefix {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: rgba(224, 232, 255, 0.28);
+  flex-shrink: 0;
+}
+
+.finance-npv {
+  font-weight: 700;
+  color: rgba(224, 232, 255, 0.80);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.finance-roi {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.finance-scenario {
+  color: rgba(224, 232, 255, 0.35);
+  flex-shrink: 0;
+}
+
+.finance-stranded {
+  margin-left: auto;
+  color: #f44336;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  flex-shrink: 0;
+}
+
+/* ── Batch courtyard marker (Leaflet divIcon) ──────────────────────────────── */
+.courtyard-marker {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 800;
+  color: #fff;
+  border: 2px solid rgba(0, 0, 0, 0.45);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+  line-height: 1;
+}
+.courtyard-marker:hover {
+  transform: scale(1.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
+}
+
+/* ── Heatmap legend ─────────────────────────────────────────────────────────── */
+.map-legend {
+  position: absolute;
+  left: 10px;
+  z-index: 500;
+  background: rgba(8, 12, 24, 0.82);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 5px 8px 4px;
+  min-width: 116px;
+  pointer-events: none;
+}
+
+.map-legend-title {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.55px;
+  text-transform: uppercase;
+  color: rgba(224, 232, 255, 0.38);
+  margin-bottom: 5px;
+  white-space: nowrap;
+}
+
+.map-legend-bar {
+  height: 6px;
+  border-radius: 3px;
+  margin-bottom: 3px;
+}
+
+.map-legend-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8px;
+  color: rgba(224, 232, 255, 0.45);
+  white-space: nowrap;
+  gap: 8px;
+}

@@ -1,0 +1,77 @@
+{
+  "site": {
+    "lat": 43.254,
+    "lon": 76.906,
+    "polygon": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            76.9038,
+            43.2527
+          ],
+          [
+            76.9082,
+            43.2527
+          ],
+          [
+            76.9082,
+            43.2553
+          ],
+          [
+            76.9038,
+            43.2553
+          ],
+          [
+            76.9038,
+            43.2527
+          ]
+        ]
+      ]
+    }
+  },
+  "composite_score": 7.4,
+  "grade": "A \u2014 Good: no urgent intervention needed",
+  "components": {
+    "wind_trap_score": 18.5,
+    "solar_deficit_score": 0.0,
+    "thermal_stress_score": 0.0
+  },
+  "baseline": {
+    "wind_mean_ms": 3.28,
+    "wind_frac_gt5ms_pct": 15.2,
+    "sun_mean_hrs_day_dec": 6.21,
+    "sun_frac_lt1h_pct": 6.3,
+    "utci_mean_jan_c": -0.22,
+    "utci_cold_stress_pct": 0.0
+  },
+  "best_intervention": {
+    "scenario": "A",
+    "label": "Windbreak trees (N edge)",
+    "wind_improvement_mean_ms": -0.015,
+    "utci_improvement_mean_c": 0.03
+  },
+  "all_scenarios": {
+    "A": {
+      "label": "Windbreak trees (N edge)",
+      "wind_improvement_mean_ms": -0.015,
+      "utci_improvement_mean_c": 0.03,
+      "frac_wind_improved_pct": 1.7,
+      "frac_utci_improved_pct": 3.0
+    },
+    "B": {
+      "label": "Asphalt \u2192 grass surface",
+      "wind_improvement_mean_ms": 0.0,
+      "utci_improvement_mean_c": -0.142,
+      "frac_wind_improved_pct": 0.0,
+      "frac_utci_improved_pct": 0.0
+    },
+    "C": {
+      "label": "Windbreak + grass (combined)",
+      "wind_improvement_mean_ms": -0.02,
+      "utci_improvement_mean_c": -0.11,
+      "frac_wind_improved_pct": 15.3,
+      "frac_utci_improved_pct": 2.7
+    }
+  }
+}
