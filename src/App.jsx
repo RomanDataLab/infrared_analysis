@@ -200,7 +200,7 @@ function ProjectModal({ onClose }) {
           <div className="pm-location">
             <div className="pm-location-head">
               <span className="pm-location-name">Bayterek / Nurzhol Boulevard · Astana</span>
-              <span className="pm-location-meta">51.128 °N · 71.430 °E · steppe cold · Grade pending re-run</span>
+              <span className="pm-location-meta">51.128 °N · 71.430 °E · steppe cold · Grade D · score 59.5</span>
             </div>
             <p className="pm-p">
               The 3.5 km ceremonial spine of Kazakhstan's purpose-built capital (Nurzhol
@@ -218,8 +218,8 @@ function ProjectModal({ onClose }) {
               surrounding residential fabric. At 51 °N on open steppe with no topographic
               windbreak, the boulevard is a true wind channel in winter: prevailing
               northerlies at 10–14 m/s combine with a mean January air temperature of
-              −17 °C to produce extreme UTCI well below −20 °C across the full winter
-              season — yet the Astana City Development Corporation's 2023–2027 renewal
+              −17 °C to produce a mean daytime UTCI of −28.3 °C (100 % of the analysis
+              area in extreme cold stress) across the full winter season — yet the Astana City Development Corporation's 2023–2027 renewal
               budget allocates funds exclusively for marble paving and ceremonial lighting,
               with no thermal-comfort performance target of any kind.
             </p>
