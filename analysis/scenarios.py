@@ -299,7 +299,9 @@ def main(site_key, size=500):
         scfg_a = site["scenario_A"]
         print(f"\n-- Scenario A: {scfg_a['label']} --")
 
-        trees_a = scfg_a["tree_fn"]() if scfg_a["tree_fn"] else {}
+        # Use size-appropriate tree function: tree_fn_1km for 1km runs
+        _tree_fn_a = scfg_a.get("tree_fn_1km") if size == 1000 else scfg_a.get("tree_fn")
+        trees_a = _tree_fn_a() if _tree_fn_a else {}
         # Merge intervention trees on top of the baseline vegetation (None for sparse sites).
         # {**(None→{}) + trees_a} or None  — preserves falsy→None so run_wind/run_utci
         # get None when there are genuinely no trees to pass.

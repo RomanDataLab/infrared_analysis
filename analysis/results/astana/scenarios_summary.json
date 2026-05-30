@@ -1,11 +1,11 @@
 {
   "A": {
     "label": "Windbreak elm trees (3-row, N edge, 920 m wide)",
-    "wind_delta_raw": 0.116,
-    "utci_delta_raw": 0.0,
-    "wind_improvement": 0.116,
-    "utci_improvement": -0.0,
-    "frac_wind_improved": 0.111,
+    "wind_delta_raw": 0.0,
+    "utci_delta_raw": 0.031,
+    "wind_improvement": 0.0,
+    "utci_improvement": -0.031,
+    "frac_wind_improved": 0.0,
     "frac_utci_improved": 0.0
   },
   "B": {
@@ -19,11 +19,11 @@
   },
   "C": {
     "label": "3-row windbreak + grass (combined)",
-    "wind_delta_raw": 0.0,
-    "utci_delta_raw": -0.02,
-    "wind_improvement": 0.0,
-    "utci_improvement": 0.02,
-    "frac_wind_improved": 0.0,
+    "wind_delta_raw": -0.087,
+    "utci_delta_raw": 0.011,
+    "wind_improvement": -0.087,
+    "utci_improvement": -0.011,
+    "frac_wind_improved": 0.107,
     "frac_utci_improved": 0.025
   }
 }

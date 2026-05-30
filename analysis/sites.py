@@ -92,16 +92,16 @@ SITES = {}
 _ALM_LAT, _ALM_LON = 43.2450, 76.9480
 
 # Windbreak: 3 staggered rows of birch trees along the north edge, 8 m apart
-# Row layout: 475 m, 467 m, 459 m north of centre (inside the 500 m boundary)
+# north_m = distance of first row from site centre (sized to polygon half-width - 30m margin)
 # 3 rows × ~115 trees @ 10 m height → shelter zone covers ~200 m downwind (920 m wide)
-def _almaty_windbreak():
+def _almaty_windbreak(north_m=220):
     spacing   = 8 / (111_320 * math.cos(math.radians(_ALM_LAT)))
     row_step  = 8 / 111_320
     half_lon  = 460 / (111_320 * math.cos(math.radians(_ALM_LAT)))
     trees = {}
     i = 0
-    for row in range(3):                               # rows at 475, 467, 459 m N of centre
-        lat = _ALM_LAT + (475 / 111_320) - row * row_step
+    for row in range(3):
+        lat = _ALM_LAT + (north_m / 111_320) - row * row_step
         lon = _ALM_LON - half_lon
         while lon <= _ALM_LON + half_lon + 1e-9:
             trees[f"wb_{i:03d}"] = {
@@ -161,18 +161,19 @@ SITES["almaty"] = {
         "utci_bad_dir": "below",    # bad = below threshold
     },
 
-    # Scenarios
+    # Scenarios (500 m polygon — trees placed 220 m from centre, inside 250 m half-edge)
     "scenario_A": {
         "label":       "Windbreak birch trees (3-row, N edge, 920 m wide)",
-        "tree_fn":     _almaty_windbreak,
+        "tree_fn":     lambda: _almaty_windbreak(north_m=220),
+        "tree_fn_1km": lambda: _almaty_windbreak(north_m=475),
         "tree_props":  {"height": 10, "crown_radius": 3, "genus": "Betula"},
-        "ground_key":  None,         # no ground change in A
+        "ground_key":  None,
     },
     "scenario_B": {
         "label":       "Asphalt -> grass (courtyard surface)",
         "tree_fn":     None,
         "ground_key":  "vegetation",
-        "ground_fc":   _inner_polygon(_ALM_LAT, _ALM_LON, size_m=600),
+        "ground_fc":   _inner_polygon(_ALM_LAT, _ALM_LON, size_m=400),
     },
     "scenario_C_label": "3-row windbreak + grass (combined)",
 }
@@ -274,16 +275,16 @@ SITES["riyadh"] = {
 _AST_LAT, _AST_LON = 51.160155, 71.406656   # Northern Government Quarter / Ak Bulak Left Bank
 
 # Windbreak: 3 staggered rows of elm trees along the north edge
-# Row layout: 475 m, 467 m, 459 m north of centre (inside the 500 m boundary)
+# north_m = distance of first row from site centre (sized to polygon half-width - 30m margin)
 # Steppe site with 12 m/s wind — 3 rows × ~115 trees @ 10 m height
-def _astana_windbreak():
+def _astana_windbreak(north_m=220):
     spacing   = 8 / (111_320 * math.cos(math.radians(_AST_LAT)))
     row_step  = 8 / 111_320
     half_lon  = 460 / (111_320 * math.cos(math.radians(_AST_LAT)))
     trees = {}
     i = 0
-    for row in range(3):                               # rows at 475, 467, 459 m N of centre
-        lat = _AST_LAT + (475 / 111_320) - row * row_step
+    for row in range(3):
+        lat = _AST_LAT + (north_m / 111_320) - row * row_step
         lon = _AST_LON - half_lon
         while lon <= _AST_LON + half_lon + 1e-9:
             trees[f"wb_{i:03d}"] = {
@@ -342,10 +343,11 @@ SITES["astana"] = {
         "utci_bad_dir": "below",
     },
 
-    # Scenarios
+    # Scenarios (500 m polygon — trees placed 220 m from centre, inside 250 m half-edge)
     "scenario_A": {
         "label":       "Windbreak elm trees (3-row, N edge, 920 m wide)",
-        "tree_fn":     _astana_windbreak,
+        "tree_fn":     lambda: _astana_windbreak(north_m=220),
+        "tree_fn_1km": lambda: _astana_windbreak(north_m=475),
         "tree_props":  {"height": 10, "crown_radius": 3, "genus": "Ulmus"},
         "ground_key":  None,
     },
@@ -353,7 +355,7 @@ SITES["astana"] = {
         "label":       "Asphalt -> grass (courtyard surface)",
         "tree_fn":     None,
         "ground_key":  "vegetation",
-        "ground_fc":   _inner_polygon(_AST_LAT, _AST_LON, size_m=600),
+        "ground_fc":   _inner_polygon(_AST_LAT, _AST_LON, size_m=400),
     },
     "scenario_C_label": "3-row windbreak + grass (combined)",
 }

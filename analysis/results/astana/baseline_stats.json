@@ -1,7 +1,7 @@
 {
   "site": {
     "key": "astana",
-    "name": "Astana \u2014 Bayterek / Nurzhol Blvd",
+    "name": "Astana \u2014 Northern Government Quarter",
     "lat": 51.160155,
     "lon": 71.406656,
     "polygon": {
@@ -34,10 +34,10 @@
     "climate": "cold"
   },
   "wind": {
-    "mean_ms": 5.84,
-    "max_ms": 16.45,
-    "frac_gt5ms": 0.571,
-    "frac_lt1ms": 0.014
+    "mean_ms": 5.75,
+    "max_ms": 16.29,
+    "frac_gt5ms": 0.565,
+    "frac_lt1ms": 0.013
   },
   "sun": {
     "mean_hrs_day": 6.11,
