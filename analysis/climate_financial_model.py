@@ -197,6 +197,7 @@ class ClimateFinancialModel:
         self,
         site_key: str,
         total_asset_value_usd: Optional[float] = None,
+        size: int = 500,
     ) -> None:
         if site_key not in SITES:
             raise ValueError(f"Unknown site_key '{site_key}'. Valid: {list(SITES)}")
@@ -207,7 +208,8 @@ class ClimateFinancialModel:
         self.cap_rate  = CAP_RATES[site_key]
         self._total_asset_value = total_asset_value_usd
 
-        self._out_dir = ANALYSIS_DIR / "results" / site_key
+        _base = ANALYSIS_DIR / "results" / site_key
+        self._out_dir = _base / "1km" if size == 1000 else _base
         self._baseline_stats:  Optional[dict] = None
         self._scenarios_summary: Optional[dict] = None
         self._courtyard_score: Optional[dict] = None

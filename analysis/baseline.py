@@ -60,8 +60,10 @@ VALID_MATERIALS = {"asphalt", "concrete", "soil", "vegetation", "water"}
 # Helpers
 # ---------------------------------------------------------------------------
 
-def results_dir(site_key):
+def results_dir(site_key, size=500):
     d = Path(__file__).parent / "results" / site_key
+    if size == 1000:
+        d = d / "1km"
     d.mkdir(parents=True, exist_ok=True)
     return d
 
@@ -167,14 +169,13 @@ def cache_fetched(out_dir, buildings, area_veg, layers, overture_checked: bool =
 # Main
 # ---------------------------------------------------------------------------
 
-def main(site_key):
+def main(site_key, size=500):
     site = SITES[site_key]
-    out  = results_dir(site_key)
+    out  = results_dir(site_key, size)
 
-    polygon  = site["polygon"]
+    polygon  = site["polygon"] if size == 500 else site["polygon_1km"]
     # Use the wider context polygon (1500 m) for building & vegetation fetch so
-    # that surrounding urban morphology enters the simulation domain.  The
-    # analysis *output* grid still covers the inner 500 m polygon only.
+    # that surrounding urban morphology enters the simulation domain.
     ctx_poly = site.get("context_polygon", polygon)
     loc      = Location(latitude=site["lat"], longitude=site["lon"])
     climate  = site["climate"]
@@ -193,7 +194,7 @@ def main(site_key):
                           end_month=um,   end_day=days_in_month[um], end_hour=uh_e)
 
     print(f"\n=== {site['name']} ===")
-    print(f"      analysis polygon : 1 km")
+    print(f"      analysis polygon : {size} m")
     print(f"      context polygon  : 1.5 km  (buildings + vegetation fetch)")
 
     with InfraredClient() as client:
@@ -476,5 +477,6 @@ def main(site_key):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--site", choices=list(SITES.keys()), required=True)
+    parser.add_argument("--size", type=int, choices=[500, 1000], default=500)
     args = parser.parse_args()
-    main(args.site)
+    main(args.site, size=args.size)

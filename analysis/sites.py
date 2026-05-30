@@ -8,7 +8,8 @@ Four sites, one pipeline.
   astana  →  Bayterek / Nurzhol Blvd       (51.128N, 71.430E)  —  steppe cold stress
   mecca   →  Masjid al-Haram surrounds     (21.427N, 39.814E)  —  extreme heat stress
 
-All polygons are 1 000 m × 1 000 m centred on the site coordinates.
+Primary analysis polygons are 500 m × 500 m (study area).
+Extended analysis polygons are 1 000 m × 1 000 m (used for 1 km finance models).
 """
 
 # ---------------------------------------------------------------------------
@@ -16,10 +17,10 @@ All polygons are 1 000 m × 1 000 m centred on the site coordinates.
 # ---------------------------------------------------------------------------
 import math
 
-def _polygon_1km(lat_c, lon_c):
-    """Return a 1 000 x 1 000 m GeoJSON Polygon centred on lat_c / lon_c."""
-    half_lat = 500 / 111_320                              # ~0.00449 deg
-    half_lon = 500 / (111_320 * math.cos(math.radians(lat_c)))
+def _make_polygon(lat_c, lon_c, half_m):
+    """Return a square GeoJSON Polygon of side 2*half_m centred on lat_c/lon_c."""
+    half_lat = half_m / 111_320
+    half_lon = half_m / (111_320 * math.cos(math.radians(lat_c)))
     return {
         "type": "Polygon",
         "coordinates": [[
@@ -30,6 +31,14 @@ def _polygon_1km(lat_c, lon_c):
             [lon_c - half_lon, lat_c - half_lat],   # close
         ]],
     }
+
+def _polygon_500m(lat_c, lon_c):
+    """Return a 500 × 500 m GeoJSON Polygon centred on lat_c / lon_c."""
+    return _make_polygon(lat_c, lon_c, 250)
+
+def _polygon_1km(lat_c, lon_c):
+    """Return a 1 000 × 1 000 m GeoJSON Polygon centred on lat_c / lon_c."""
+    return _make_polygon(lat_c, lon_c, 500)
 
 def _polygon_context(lat_c, lon_c, size_m=1500):
     """
@@ -108,7 +117,8 @@ SITES["almaty"] = {
     "name":            "Almaty — Medeu/Dostyk Embassy Row",
     "lat":             _ALM_LAT,
     "lon":             _ALM_LON,
-    "polygon":         _polygon_1km(_ALM_LAT, _ALM_LON),
+    "polygon":         _polygon_500m(_ALM_LAT, _ALM_LON),
+    "polygon_1km":     _polygon_1km(_ALM_LAT, _ALM_LON),
     "context_polygon": _polygon_context(_ALM_LAT, _ALM_LON),
     "climate":         "cold",
     "weather_radius":  150,
@@ -197,7 +207,8 @@ SITES["riyadh"] = {
     "name":            "Riyadh — Al-Murabba / Diriyah Gate",
     "lat":             _RIY_LAT,
     "lon":             _RIY_LON,
-    "polygon":         _polygon_1km(_RIY_LAT, _RIY_LON),
+    "polygon":         _polygon_500m(_RIY_LAT, _RIY_LON),
+    "polygon_1km":     _polygon_1km(_RIY_LAT, _RIY_LON),
     "context_polygon": _polygon_context(_RIY_LAT, _RIY_LON),
     "climate":         "hot",
     "weather_radius":  100,
@@ -260,7 +271,7 @@ SITES["riyadh"] = {
 
 
 # ── Astana — Bayterek / Nurzhol Blvd ────────────────────────────────────────
-_AST_LAT, _AST_LON = 51.1280, 71.4300   # Bayterek Tower / Nurzhol Blvd centre
+_AST_LAT, _AST_LON = 51.160155, 71.406656   # Northern Government Quarter / Ak Bulak Left Bank
 
 # Windbreak: 3 staggered rows of elm trees along the north edge
 # Row layout: 475 m, 467 m, 459 m north of centre (inside the 500 m boundary)
@@ -285,10 +296,11 @@ def _astana_windbreak():
     return trees
 
 SITES["astana"] = {
-    "name":            "Astana — Bayterek / Nurzhol Blvd",
+    "name":            "Astana — Northern Government Quarter",
     "lat":             _AST_LAT,
     "lon":             _AST_LON,
-    "polygon":         _polygon_1km(_AST_LAT, _AST_LON),
+    "polygon":         _polygon_500m(_AST_LAT, _AST_LON),
+    "polygon_1km":     _polygon_1km(_AST_LAT, _AST_LON),
     "context_polygon": _polygon_context(_AST_LAT, _AST_LON),
     "climate":         "cold",
     "weather_radius":  150,
@@ -376,7 +388,8 @@ SITES["mecca"] = {
     "name":            "Mecca — Masjid al-Haram surrounds",
     "lat":             _MKK_LAT,
     "lon":             _MKK_LON,
-    "polygon":         _polygon_1km(_MKK_LAT, _MKK_LON),
+    "polygon":         _polygon_500m(_MKK_LAT, _MKK_LON),
+    "polygon_1km":     _polygon_1km(_MKK_LAT, _MKK_LON),
     "context_polygon": _polygon_context(_MKK_LAT, _MKK_LON),
     "climate":         "hot",
     "weather_radius":  100,

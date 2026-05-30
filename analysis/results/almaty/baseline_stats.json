@@ -37,7 +37,7 @@
     "mean_ms": 2.9,
     "max_ms": 9.09,
     "frac_gt5ms": 0.112,
-    "frac_lt1ms": 0.07
+    "frac_lt1ms": 0.069
   },
   "sun": {
     "mean_hrs_day": 5.87,

@@ -2,45 +2,45 @@
   "site_key": "astana",
   "site_name": "Astana \u2014 Bayterek / Nurzhol Blvd",
   "climate": "cold",
-  "composite_score": 59.5,
+  "composite_score": 58.1,
   "grade": "D  Poor      \u2014 include in next cycle",
   "components": {
-    "Wind trap": 84.3,
+    "Wind trap": 80.2,
     "Solar deficit": 0.0,
     "Cold stress": 100.0
   },
   "key_stats": {
-    "wind_mean_ms": 6.28,
-    "sun_mean_h_day": 6.2,
-    "utci_mean_c": -28.29
+    "wind_mean_ms": 5.84,
+    "sun_mean_h_day": 6.11,
+    "utci_mean_c": -28.15
   },
   "best_intervention": {
-    "key": "B",
-    "label": "Asphalt -> grass (courtyard surface)",
-    "wind_improv_ms": 0.0,
-    "utci_improv_c": 0.084
+    "key": "A",
+    "label": "Windbreak elm trees (3-row, N edge, 920 m wide)",
+    "wind_improv_ms": 0.116,
+    "utci_improv_c": -0.0
   },
   "all_scenarios": {
     "A": {
       "label": "Windbreak elm trees (3-row, N edge, 920 m wide)",
-      "wind_improv_ms": -0.057,
-      "utci_improv_c": -0.021,
-      "frac_wind_pct": 3.8,
+      "wind_improv_ms": 0.116,
+      "utci_improv_c": -0.0,
+      "frac_wind_pct": 11.1,
       "frac_utci_pct": 0.0
     },
     "B": {
       "label": "Asphalt -> grass (courtyard surface)",
       "wind_improv_ms": 0.0,
-      "utci_improv_c": 0.084,
+      "utci_improv_c": 0.02,
       "frac_wind_pct": 0.0,
-      "frac_utci_pct": 9.9
+      "frac_utci_pct": 2.5
     },
     "C": {
       "label": "3-row windbreak + grass (combined)",
-      "wind_improv_ms": -0.093,
-      "utci_improv_c": 0.063,
-      "frac_wind_pct": 8.0,
-      "frac_utci_pct": 10.0
+      "wind_improv_ms": 0.0,
+      "utci_improv_c": 0.02,
+      "frac_wind_pct": 0.0,
+      "frac_utci_pct": 2.5
     }
   }
 }

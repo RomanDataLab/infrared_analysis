@@ -26,8 +26,9 @@ GRADES = [
 ]
 
 
-def results_dir(site_key):
-    return Path(__file__).parent / "results" / site_key
+def results_dir(site_key, size=500):
+    d = Path(__file__).parent / "results" / site_key
+    return d / "1km" if size == 1000 else d
 
 
 def normalise(value, worst, best):
@@ -54,9 +55,9 @@ def best_scenario(scenarios, climate):
     return max(scenarios.items(), key=lambda kv: combined(kv[1]))
 
 
-def score_site(site_key):
+def score_site(site_key, size=500):
     site = SITES[site_key]
-    out  = results_dir(site_key)
+    out  = results_dir(site_key, size)
     sc   = site["score_config"]
     climate = site["climate"]
 
@@ -202,20 +203,20 @@ if __name__ == "__main__":
     parser.add_argument("--site", choices=list(SITES.keys()))
     parser.add_argument("--compare", action="store_true")
     parser.add_argument("--json",    action="store_true")
+    parser.add_argument("--size", type=int, choices=[500, 1000], default=500)
     args = parser.parse_args()
 
     if args.compare:
-        results = {sk: score_site(sk) for sk in SITES}
+        results = {sk: score_site(sk, size=args.size) for sk in SITES}
         if args.json:
             print(json.dumps(results, indent=2))
         else:
             for r in results.values():
                 print_card(r)
-            # original two-site table (shown when both exist)
             if "almaty" in results and "riyadh" in results:
                 print_compare(results["almaty"], results["riyadh"])
     elif args.site:
-        r = score_site(args.site)
+        r = score_site(args.site, size=args.size)
         if args.json:
             print(json.dumps(r, indent=2))
         else:

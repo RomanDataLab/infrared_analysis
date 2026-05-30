@@ -63,8 +63,10 @@ days_in_month = {1:31,2:28,3:31,4:30,5:31,6:30,
 # Helpers
 # ---------------------------------------------------------------------------
 
-def results_dir(site_key):
+def results_dir(site_key, size=500):
     d = Path(__file__).parent / "results" / site_key
+    if size == 1000:
+        d = d / "1km"
     d.mkdir(parents=True, exist_ok=True)
     return d
 
@@ -260,11 +262,11 @@ def scenario_stats(label, base_wind, scen_wind, base_utci, scen_utci, climate):
 # Main
 # ---------------------------------------------------------------------------
 
-def main(site_key):
+def main(site_key, size=500):
     site    = SITES[site_key]
-    out     = results_dir(site_key)
+    out     = results_dir(site_key, size)
     climate = site["climate"]
-    polygon = site["polygon"]
+    polygon = site["polygon"] if size == 500 else site["polygon_1km"]
     um      = site["utci_month"]
     uh_s, uh_e = site["utci_hours"]
 
@@ -423,5 +425,6 @@ def main(site_key):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--site", choices=list(SITES.keys()), required=True)
+    parser.add_argument("--size", type=int, choices=[500, 1000], default=500)
     args = parser.parse_args()
-    main(args.site)
+    main(args.site, size=args.size)

@@ -41,9 +41,10 @@ PNG_NAMES = [
 ]
 
 
-def copy_heatmaps(site_key):
-    src = ANALYSIS_DIR / "results" / site_key
-    dst = HEATMAPS_DIR / site_key
+def copy_heatmaps(site_key, size=500):
+    subdir = "1km" if size == 1000 else ""
+    src = ANALYSIS_DIR / "results" / site_key / (subdir or ".")
+    dst = HEATMAPS_DIR / site_key / (subdir or ".")
     dst.mkdir(parents=True, exist_ok=True)
     copied = []
     for name in PNG_NAMES:
@@ -51,7 +52,8 @@ def copy_heatmaps(site_key):
         if s.exists():
             shutil.copy2(s, dst / name)
             copied.append(name)
-    print(f"  [{site_key}] copied {len(copied)} PNG(s)")
+    tag = f"{site_key}/1km" if size == 1000 else site_key
+    print(f"  [{tag}] copied {len(copied)} PNG(s)")
     return copied
 
 
@@ -62,18 +64,19 @@ def load_json(path):
     return None
 
 
-def build_site_entry(site_key, score, copied_pngs):
+def build_site_entry(site_key, score, copied_pngs, size=500):
     if not score:
         return None
-    site = SITES[site_key]
+    site    = SITES[site_key]
+    subdir  = "1km" if size == 1000 else ""
+    hm_root = f"heatmaps/{site_key}" + ("/1km" if size == 1000 else "")
     heatmaps = {}
     for name in copied_pngs:
         stem = name.replace(".png", "")
-        heatmaps[stem] = f"heatmaps/{site_key}/{name}"
+        heatmaps[stem] = f"{hm_root}/{name}"
 
-    # Actual grid bounds from the API (tile-snapped) — [W, S, E, N] = [min_lng, min_lat, max_lng, max_lat]
-    # Used by the Leaflet imageOverlay so the heatmap aligns with real geography.
-    bounds_path = ANALYSIS_DIR / "results" / site_key / "baseline_bounds.json"
+    # Actual grid bounds — [W, S, E, N]
+    bounds_path = ANALYSIS_DIR / "results" / site_key / (subdir or ".") / "baseline_bounds.json"
     overlay_bounds = None
     if bounds_path.exists():
         with open(bounds_path) as f:
@@ -98,6 +101,24 @@ def build_site_entry(site_key, score, copied_pngs):
     }
 
 
+def export_size(size):
+    """Export one size variant (500 or 1000). Returns (sites_data, batch_data)."""
+    subdir = "1km" if size == 1000 else ""
+    sites_data, batch_data = [], []
+    for site_key in SITES:
+        copied = copy_heatmaps(site_key, size)
+        score_path = ANALYSIS_DIR / "results" / site_key / (subdir or ".") / "courtyard_score.json"
+        score  = load_json(score_path)
+        batch  = load_json(ANALYSIS_DIR / "results" / site_key / "batch_results.json") or []
+        entry  = build_site_entry(site_key, score, copied, size)
+        if entry:
+            sites_data.append(entry)
+        if size == 500:          # batch courtyards only in primary export
+            batch_data.extend(batch)
+    sites_data.sort(key=lambda x: x["composite_score"], reverse=True)
+    return sites_data, batch_data
+
+
 def main():
     PUBLIC_DIR.mkdir(exist_ok=True)
     HEATMAPS_DIR.mkdir(exist_ok=True)
@@ -105,20 +126,8 @@ def main():
     print("\n=== Exporting web assets ===")
     print(f"  Target: {PUBLIC_DIR}")
 
-    sites_data = []
-    batch_data = []
-
-    for site_key in SITES:
-        copied = copy_heatmaps(site_key)
-        score  = load_json(ANALYSIS_DIR / "results" / site_key / "courtyard_score.json")
-        batch  = load_json(ANALYSIS_DIR / "results" / site_key / "batch_results.json") or []
-        entry  = build_site_entry(site_key, score, copied)
-        if entry:
-            sites_data.append(entry)
-        batch_data.extend(batch)
-
-    # Sort sites worst-first for the frontend ranking
-    sites_data.sort(key=lambda x: x["composite_score"], reverse=True)
+    # ── 500 m primary ───────────────────────────────────────────────────────
+    sites_data, batch_data = export_size(500)
     batch_data.sort(key=lambda x: x["composite"], reverse=True)
 
     renovation_data = {
@@ -126,24 +135,43 @@ def main():
         "sites":     sites_data,
         "batch":     batch_data,
     }
-
-    out = PUBLIC_DIR / "renovation_data.json"
-    with open(out, "w") as f:
+    with open(PUBLIC_DIR / "renovation_data.json", "w") as f:
         json.dump(renovation_data, f, indent=2)
-
     print(f"\n  Wrote renovation_data.json")
     print(f"    {len(sites_data)} main sites, {len(batch_data)} batch courtyards")
 
-    # ── Auto-generate financial_data.json ──────────────────────────────────
+    # ── 1 km extended ───────────────────────────────────────────────────────
+    sites_1km, _ = export_size(1000)
+    if sites_1km:
+        renovation_1km = {
+            "generated": str(date.today()),
+            "sites":     sites_1km,
+            "batch":     [],
+        }
+        with open(PUBLIC_DIR / "renovation_data_1km.json", "w") as f:
+            json.dump(renovation_1km, f, indent=2)
+        print(f"  Wrote renovation_data_1km.json  ({len(sites_1km)} sites)")
+
+    # ── Auto-generate financial_data.json (500 m) ───────────────────────────
     try:
         from generate_financial_data import generate
-        fin = generate()
-        fin_out = PUBLIC_DIR / "financial_data.json"
-        with open(fin_out, "w", encoding="utf-8") as fh:
+        fin = generate(size=500)
+        with open(PUBLIC_DIR / "financial_data.json", "w", encoding="utf-8") as fh:
             json.dump(fin, fh, indent=2)
         print(f"\n  Wrote financial_data.json ({len(fin)} sites)")
     except Exception as exc:
         print(f"\n  [warn] financial_data.json not updated: {exc}")
+
+    # ── financial_data_1km.json ─────────────────────────────────────────────
+    try:
+        from generate_financial_data import generate
+        fin1km = generate(size=1000)
+        if fin1km:
+            with open(PUBLIC_DIR / "financial_data_1km.json", "w", encoding="utf-8") as fh:
+                json.dump(fin1km, fh, indent=2)
+            print(f"  Wrote financial_data_1km.json ({len(fin1km)} sites)")
+    except Exception as exc:
+        print(f"\n  [warn] financial_data_1km.json not updated: {exc}")
 
     print(f"\n  To rebuild the map run:")
     print(f"    npm run dev   (inside {ANALYSIS_DIR.parent})")

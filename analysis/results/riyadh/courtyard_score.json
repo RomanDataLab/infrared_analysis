@@ -17,16 +17,16 @@
   "best_intervention": {
     "key": "D",
     "label": "200m canopy shade structure",
-    "wind_improv_ms": 0.095,
-    "utci_improv_c": 0.582
+    "wind_improv_ms": -0.139,
+    "utci_improv_c": 0.307
   },
   "all_scenarios": {
     "A": {
-      "label": "Date palm shade grid (145 trees, courtyard)",
-      "wind_improv_ms": 0.0,
-      "utci_improv_c": 0.054,
-      "frac_wind_pct": 20.7,
-      "frac_utci_pct": 3.9
+      "label": "Date palm shade grid (513 trees, courtyard)",
+      "wind_improv_ms": -0.151,
+      "utci_improv_c": 0.122,
+      "frac_wind_pct": 10.9,
+      "frac_utci_pct": 8.7
     },
     "B": {
       "label": "Asphalt -> pale concrete (high-albedo paving)",
@@ -36,18 +36,18 @@
       "frac_utci_pct": 0.0
     },
     "C": {
-      "label": "145 date palms + pale concrete (combined)",
-      "wind_improv_ms": 0.0,
-      "utci_improv_c": 0.048,
-      "frac_wind_pct": 20.6,
-      "frac_utci_pct": 3.9
+      "label": "513 date palms + pale concrete (combined)",
+      "wind_improv_ms": -0.148,
+      "utci_improv_c": 0.116,
+      "frac_wind_pct": 11.3,
+      "frac_utci_pct": 8.7
     },
     "D": {
       "label": "200m canopy shade structure",
-      "wind_improv_ms": 0.095,
-      "utci_improv_c": 0.582,
-      "frac_wind_pct": 50.2,
-      "frac_utci_pct": 12.4
+      "wind_improv_ms": -0.139,
+      "utci_improv_c": 0.307,
+      "frac_wind_pct": 16.9,
+      "frac_utci_pct": 6.2
     }
   }
 }

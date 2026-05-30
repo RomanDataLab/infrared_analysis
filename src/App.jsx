@@ -199,29 +199,33 @@ function ProjectModal({ onClose }) {
 
           <div className="pm-location">
             <div className="pm-location-head">
-              <span className="pm-location-name">Bayterek / Nurzhol Boulevard · Astana</span>
-              <span className="pm-location-meta">51.128 °N · 71.430 °E · steppe cold · Grade D · score 59.5</span>
+              <span className="pm-location-name">Northern Government Quarter · Astana</span>
+              <span className="pm-location-meta">51.160 °N · 71.407 °E · steppe cold · Grade D · score 58.1</span>
             </div>
             <p className="pm-p">
-              The 3.5 km ceremonial spine of Kazakhstan's purpose-built capital (Nurzhol
-              Boulevard, master-planned by Kisho Kurokawa, substantially complete by 2006)
-              connects the Presidential Palace (Ak Orda) to Khan Shatyr entertainment dome
-              through Bayterek Tower — the country's internationally recognised urban
-              landmark and primary destination for domestic tourism, hosting state
-              ceremonies, national-day celebrations, and diplomatic receptions year-round.
-              The entire corridor is state-owned, meaning there are no private-landowner
-              negotiation barriers: any approved thermal intervention can be procured and
-              delivered at sovereign speed, a structural advantage that no other study
-              site shares. Adjacent land is under active conversion to five-star hotels
-              and government ministry campuses, compressing the public-realm budget against
-              rising private-side expectations and accelerating gentrification of the
-              surrounding residential fabric. At 51 °N on open steppe with no topographic
-              windbreak, the boulevard is a true wind channel in winter: prevailing
-              northerlies at 10–14 m/s combine with a mean January air temperature of
-              −17 °C to produce a mean daytime UTCI of −28.3 °C (100 % of the analysis
-              area in extreme cold stress) across the full winter season — yet the Astana City Development Corporation's 2023–2027 renewal
-              budget allocates funds exclusively for marble paving and ceremonial lighting,
-              with no thermal-comfort performance target of any kind.
+              The northern precinct of Astana's Left Bank — the first phase of Kisho
+              Kurokawa's master plan, built 1999–2007 — is a dense block of state
+              ministries, national agencies, and government-service buildings flanking
+              the wide arterial grid that connects the Presidential Palace axis to the
+              city's northern ring. Unlike the ceremonial Nurzhol spine, this district
+              is built for administrative function rather than civic display: ministry
+              campuses occupy full city blocks, ground-floor retail is sparse, and the
+              pedestrian realm serves as a bare wind-swept corridor rather than usable
+              public space. Land values reach USD 1 000–1 400/m² due to locational
+              premium and enforced state ownership, and demand from private developers
+              converting ageing early-2000s office stock into mixed-use towers is
+              intensifying — a form of institutional gentrification that is progressively
+              enclosing the open plazas that once provided passive thermal buffering.
+              All land is state-owned, removing any private acquisition barrier and
+              enabling sovereign-speed procurement of thermal interventions — a
+              structural advantage absent at every other study site. The Astana City
+              Development Corporation's 2023–2027 renewal budget targets this northern
+              precinct for streetscape overhaul, yet no wind-speed or UTCI performance
+              metric appears in any tender specification. At 51.16 °N on featureless
+              steppe — the widest and most exposed north–south avenue corridors on the
+              Left Bank — prevailing northerlies of 10–14 m/s produce a mean daytime
+              January UTCI of −28.2 °C, placing 100 % of the analysis area in extreme
+              cold stress for four consecutive winter months every year.
             </p>
           </div>
         </section>
@@ -615,6 +619,7 @@ function Toolbar({ onShowProject, onShowFinance, locked, onToggleLock, studySize
 // ── Root app ───────────────────────────────────────────────────────────────
 export default function App() {
   const [siteMap,           setSiteMap]           = useState({})
+  const [siteMap1km,        setSiteMap1km]        = useState({})
   const [batchMap,          setBatchMap]          = useState({})
   const [financialData,     setFinancialData]     = useState(null)
   const [mapLocked,         setMapLocked]         = useState(false)
@@ -623,23 +628,37 @@ export default function App() {
   const [showFinancePanel,  setShowFinancePanel]  = useState(false)
   const [focusedSite,       setFocusedSite]       = useState(null)
 
+  // Helper to parse a renovation data JSON into {siteMap, batchMap}
+  const parseRenovationData = d => {
+    const m = {}
+    for (const s of (d.sites ?? [])) m[s.key] = s
+    const bm = {}
+    for (const b of (d.batch ?? [])) {
+      if (!bm[b.site_key]) bm[b.site_key] = []
+      bm[b.site_key].push(b)
+    }
+    return { m, bm }
+  }
+
   useEffect(() => {
     fetch('/renovation_data.json')
       .then(r => r.json())
       .then(d => {
-        const m = {}
-        for (const s of (d.sites ?? [])) m[s.key] = s
+        const { m, bm } = parseRenovationData(d)
         setSiteMap(m)
-
-        // Group batch courtyards by site key
-        const bm = {}
-        for (const b of (d.batch ?? [])) {
-          if (!bm[b.site_key]) bm[b.site_key] = []
-          bm[b.site_key].push(b)
-        }
         setBatchMap(bm)
       })
       .catch(() => console.warn('renovation_data.json not found — run export_web.py'))
+  }, [])
+
+  useEffect(() => {
+    fetch('/renovation_data_1km.json')
+      .then(r => r.json())
+      .then(d => {
+        const { m } = parseRenovationData(d)
+        setSiteMap1km(m)
+      })
+      .catch(() => {}) // 1km data is optional — loads after 1km pipeline runs
   }, [])
 
   useEffect(() => {
@@ -647,6 +666,14 @@ export default function App() {
       .then(r => r.json())
       .then(d => setFinancialData(d))
       .catch(() => console.warn('financial_data.json not found — run climate_financial_model.py'))
+  }, [])
+
+  const [financialData1km, setFinancialData1km] = useState(null)
+  useEffect(() => {
+    fetch('/financial_data_1km.json')
+      .then(r => r.json())
+      .then(d => setFinancialData1km(d))
+      .catch(() => {}) // 1km data is optional
   }, [])
 
   // ── Portfolio-level aggregate stats shown in the summary bar ───────────────
@@ -740,25 +767,29 @@ export default function App() {
       )}
 
       <div className={`quad-layout${focusedSite ? ' quad-layout-focused' : ''}`}>
-        {SITE_ORDER.map(key => (
-          <div
-            key={key}
-            className={`quad-pane${focusedSite === key ? ' quad-pane-focused' : ''}${focusedSite && focusedSite !== key ? ' quad-pane-hidden' : ''}`}
-          >
-            {siteMap[key]
-              ? <CityMap
-                  site={siteMap[key]}
-                  batch={batchMap[key] ?? []}
-                  locked={mapLocked}
-                  studySize={studySize}
-                  finance={financialData?.[key] ?? null}
-                  maximized={focusedSite === key}
-                  onToggleMaximize={() => setFocusedSite(k => k === key ? null : key)}
-                />
-              : <PendingPanel siteKey={key} />
-            }
-          </div>
-        ))}
+        {SITE_ORDER.map(key => {
+          // Use 1km site data when toggle is 1km AND data is available; fall back to 500m
+          const activeSiteMap = (studySize === 1000 && siteMap1km[key]) ? siteMap1km : siteMap
+          return (
+            <div
+              key={key}
+              className={`quad-pane${focusedSite === key ? ' quad-pane-focused' : ''}${focusedSite && focusedSite !== key ? ' quad-pane-hidden' : ''}`}
+            >
+              {activeSiteMap[key]
+                ? <CityMap
+                    site={activeSiteMap[key]}
+                    batch={batchMap[key] ?? []}
+                    locked={mapLocked}
+                    studySize={studySize}
+                    finance={financialData?.[key] ?? null}
+                    maximized={focusedSite === key}
+                    onToggleMaximize={() => setFocusedSite(k => k === key ? null : key)}
+                  />
+                : <PendingPanel siteKey={key} />
+              }
+            </div>
+          )
+        })}
       </div>
 
       {showProjectModal && (
@@ -768,6 +799,7 @@ export default function App() {
       {showFinancePanel && (
         <FinancialPanel
           data={financialData}
+          data1km={financialData1km}
           onClose={() => setShowFinancePanel(false)}
         />
       )}

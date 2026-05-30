@@ -1,11 +1,11 @@
 {
   "A": {
-    "label": "Windbreak birch trees (3-row, N edge)",
-    "wind_delta_raw": 0.0,
-    "utci_delta_raw": 0.017,
-    "wind_improvement": 0.0,
-    "utci_improvement": -0.017,
-    "frac_wind_improved": 0.0,
+    "label": "Windbreak birch trees (3-row, N edge, 920 m wide)",
+    "wind_delta_raw": -0.012,
+    "utci_delta_raw": 0.0,
+    "wind_improvement": -0.012,
+    "utci_improvement": -0.0,
+    "frac_wind_improved": 0.036,
     "frac_utci_improved": 0.0
   },
   "B": {
@@ -19,11 +19,11 @@
   },
   "C": {
     "label": "3-row windbreak + grass (combined)",
-    "wind_delta_raw": 0.012,
-    "utci_delta_raw": -0.481,
-    "wind_improvement": 0.012,
-    "utci_improvement": 0.481,
-    "frac_wind_improved": 0.053,
-    "frac_utci_improved": 0.331
+    "wind_delta_raw": -0.003,
+    "utci_delta_raw": -0.5,
+    "wind_improvement": -0.003,
+    "utci_improvement": 0.5,
+    "frac_wind_improved": 0.116,
+    "frac_utci_improved": 0.333
   }
 }

@@ -178,10 +178,11 @@ def save_delta(delta, title, path, label="improvement (green=better)"):
 # Main
 # ---------------------------------------------------------------------------
 
-def main(site_key):
+def main(site_key, size=500):
     site    = SITES[site_key]
-    out     = Path(__file__).parent / "results" / site_key
-    polygon = site["polygon"]
+    _base   = Path(__file__).parent / "results" / site_key
+    out     = _base / "1km" if size == 1000 else _base
+    polygon = site["polygon"] if size == 500 else site["polygon_1km"]
     um      = site["utci_month"]
     uh_s, uh_e = site["utci_hours"]
     days_in_month = {1:31,2:28,3:31,4:30,5:31,6:30,
@@ -308,5 +309,6 @@ if __name__ == "__main__":
         "--site", required=True, choices=HOT_SITES,
         help=f"Hot site to analyse: {HOT_SITES}"
     )
+    parser.add_argument("--size", type=int, choices=[500, 1000], default=500)
     args = parser.parse_args()
-    main(args.site)
+    main(args.site, size=args.size)

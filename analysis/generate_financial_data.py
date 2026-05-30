@@ -67,13 +67,15 @@ SITE_PARAMS: dict[str, dict] = {
 }
 
 
-def _load_best_scenarios() -> dict[str, str]:
-    """Return {site_key: scenario_key} from renovation_data.json."""
-    reno_path = PUBLIC_DIR / "renovation_data.json"
+def _load_best_scenarios(size: int = 500) -> dict[str, str]:
+    """Return {site_key: scenario_key} from renovation_data[_1km].json."""
+    fname = "renovation_data_1km.json" if size == 1000 else "renovation_data.json"
+    reno_path = PUBLIC_DIR / fname
     if not reno_path.exists():
-        raise FileNotFoundError(
-            f"{reno_path} not found — run export_web.py first"
-        )
+        # fall back to primary data
+        reno_path = PUBLIC_DIR / "renovation_data.json"
+    if not reno_path.exists():
+        raise FileNotFoundError(f"{reno_path} not found — run export_web.py first")
     with open(reno_path, encoding="utf-8") as f:
         reno = json.load(f)
     best: dict[str, str] = {}
@@ -85,7 +87,13 @@ def _load_best_scenarios() -> dict[str, str]:
     return best
 
 
-def generate(site_params: dict | None = None) -> dict:
+# Scaling factor for 1 km vs 500 m: 1km² / 0.5km² = 4×
+_AREA_SCALE = {500: 1.0, 1000: 4.0}
+# Capex scales approximately linearly with intervention area
+_CAPEX_SCALE = {500: 1.0, 1000: 3.5}   # slightly less than 4× (shared infrastructure)
+
+
+def generate(site_params: dict | None = None, size: int = 500) -> dict:
     """
     Compute renovation NPV for every site and return the result dict.
     Pass a custom site_params mapping to override SITE_PARAMS defaults.
@@ -94,11 +102,16 @@ def generate(site_params: dict | None = None) -> dict:
     sys.path.insert(0, str(ANALYSIS_DIR))
     from climate_financial_model import ClimateFinancialModel
 
-    params = site_params or SITE_PARAMS
-    best   = _load_best_scenarios()
+    params      = site_params or SITE_PARAMS
+    best        = _load_best_scenarios(size)
+    area_scale  = _AREA_SCALE.get(size, 1.0)
+    capex_scale = _CAPEX_SCALE.get(size, 1.0)
+    tag         = f"financial_data{'_1km' if size==1000 else ''}.json"
 
-    print("\n=== Generating financial_data.json ===")
-    print(f"  Best scenarios from renovation_data.json: {best}")
+    print(f"\n=== Generating {tag} (size={size}m) ===")
+    print(f"  Best scenarios: {best}")
+    if size == 1000:
+        print(f"  Area scale: {area_scale}×  Capex scale: {capex_scale}×")
 
     result: dict = {}
     for site_key, p in params.items():
@@ -107,11 +120,14 @@ def generate(site_params: dict | None = None) -> dict:
             print(f"  [{site_key}] no best_intervention found — skipping")
             continue
 
-        model = ClimateFinancialModel(site_key)
+        scaled_floor  = round(p["floor_area_m2"] * area_scale)
+        scaled_capex  = round(p["capex_usd"]     * capex_scale)
+
+        model = ClimateFinancialModel(site_key, size=size)
         npv   = model.renovation_npv(
-            capex_usd            = p["capex_usd"],
+            capex_usd            = scaled_capex,
             scenario_key         = scenario_key,
-            floor_area_m2        = p["floor_area_m2"],
+            floor_area_m2        = scaled_floor,
             price_per_m2_current = p["price_per_m2"],
             annual_rent_psm      = p["annual_rent_psm"],
         )
