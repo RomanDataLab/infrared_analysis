@@ -197,3 +197,118 @@ SDK:         infrared-sdk 0.4.9
 API base:    https://api.infrared.city/v2
 Auth:        Bearer token (API key — available on request)
 ```
+
+---
+
+---
+
+# Infrared API — Incident Report #2
+**Date:** 2026-05-31  
+**API base URL:** `https://api.infrared.city/v2`  
+**SDK version:** `infrared-sdk 0.4.9` (Python 3.12, Windows)  
+**Operation attempted:** 1 km scenario simulations (wind CFD + UTCI) for 4 sites — Almaty, Riyadh, Mecca, Astana — after successful baseline runs on the same session.
+
+---
+
+## Summary
+
+After completing four 1 km baseline runs (wind + solar + UTCI, all succeeded), scenario
+simulation job submissions immediately returned **HTTP 402 Payment Required** on every
+tile across all four sites. No scenario jobs were accepted. The account appears to have
+hit a usage quota mid-session with no prior warning, rate-limit header, or graceful
+error from the SDK.
+
+---
+
+## What succeeded
+
+| Step | Status |
+|------|--------|
+| `buildings.get_area` — 2 000 m context polygon × 4 sites | ✅ All succeeded |
+| `vegetation.get_area` — 2 000 m context polygon × 4 sites | ✅ All succeeded |
+| `ground_materials.get_area` × 4 sites | ✅ All succeeded |
+| `weather.get_weather_file_from_location` × 4 sites | ✅ All succeeded |
+| `run_area` baseline (wind + solar + UTCI) × 4 sites | ✅ All succeeded |
+| `run_area` scenario A wind CFD × 4 sites | ❌ **HTTP 402 on all tiles** |
+
+---
+
+## Failing endpoint
+
+### `POST /area` (run_area — scenario simulation jobs) — HTTP 402
+
+Every tile submission during scenario runs returned 402. The SDK logs the error as:
+
+```
+Failed to submit job for tile c4f18dd8-3b43-5a33-8576-f136fae39594:
+  Failed to submit wind-speed job: 402
+```
+
+Because all tile submissions fail, `AreaSchedule.jobs` is empty and the
+downstream numpy reduction crashes on a zero-size merged grid:
+
+```
+ValueError: zero-size array to reduction operation fmin which has no identity
+  File "scenarios.py", line 103, in legend_bounds
+    lo = result.min_legend if result.min_legend is not None
+         else float(np.nanmin(grid))
+```
+
+---
+
+## Affected sites and job counts
+
+| Site | Analysis polygon | Context polygon | Scenario jobs attempted |
+|------|-----------------|-----------------|------------------------|
+| Almaty  | 1 000 × 1 000 m | 2 000 × 2 000 m | 16 wind + 16 UTCI = 32 |
+| Riyadh  | 1 000 × 1 000 m | 2 000 × 2 000 m | 16 wind + 16 UTCI = 32 |
+| Mecca   | 1 000 × 1 000 m | 2 000 × 2 000 m | 16 wind + 16 UTCI = 32 |
+| Astana  | 1 000 × 1 000 m | 2 000 × 2 000 m | 16 wind + 16 UTCI = 32 |
+
+**Total blocked: 128 simulation job submissions (0 accepted).**
+
+---
+
+## Issues raised
+
+1. **No quota warning before exhaustion.** The API accepted all baseline jobs (≈ 192
+   tiles across 4 sites × 3 analyses) without any `X-RateLimit-Remaining` or similar
+   header indicating quota state. The 402 appeared without warning on the first
+   scenario tile after baselines completed.
+
+2. **SDK does not surface quota state.** `InfraredClient` has no method to query
+   current usage or remaining quota. A `client.account.get_quota()` endpoint or
+   equivalent would allow pipelines to gate execution before hitting the limit.
+
+3. **402 is semantically incorrect for quota exhaustion.** HTTP 402 ("Payment
+   Required") implies a billing action is needed, but no invoice or upgrade prompt
+   is provided. HTTP 429 ("Too Many Requests") with a `Retry-After` header is the
+   standard for rate/quota exhaustion and would allow automatic back-off and retry.
+
+4. **Downstream SDK crash on empty job list.** When all tile submissions fail,
+   `AreaResult.merged_grid` is an empty array, causing an unhandled `ValueError` in
+   `np.nanmin`. The SDK should raise a descriptive `QuotaExceededError` before
+   returning a result object, or `merged_grid` should return `None` when no tiles
+   succeeded.
+
+---
+
+## Requested actions
+
+- Confirm current quota limit and reset cadence for this API key
+- Provide a quota-status endpoint or response header
+- Change 402 → 429 with `Retry-After` for quota exhaustion responses
+- Fix SDK to raise `QuotaExceededError` when zero tiles succeed rather than
+  returning an empty `AreaResult` that crashes on use
+
+---
+
+## Environment
+
+```
+OS:          Windows 10, Python 3.12
+SDK:         infrared-sdk 0.4.9
+API base:    https://api.infrared.city/v2
+Auth:        Bearer token (API key — available on request)
+Session:     Active multi-site pipeline (4 cities × baseline + scenarios)
+```
