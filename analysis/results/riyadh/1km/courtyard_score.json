@@ -2,52 +2,52 @@
   "site_key": "riyadh",
   "site_name": "Riyadh \u2014 Al-Murabba / Diriyah Gate",
   "climate": "hot",
-  "composite_score": 80.3,
+  "composite_score": 80.6,
   "grade": "F  Critical  \u2014 fix immediately",
   "components": {
-    "Wind stagnation": 1.5,
+    "Wind stagnation": 3.2,
     "Solar overexposure": 100.0,
     "Heat stress": 100.0
   },
   "key_stats": {
-    "wind_mean_ms": 2.74,
-    "sun_mean_h_day": 9.86,
-    "utci_mean_c": 46.79
+    "wind_mean_ms": 2.63,
+    "sun_mean_h_day": 9.66,
+    "utci_mean_c": 46.56
   },
   "best_intervention": {
     "key": "D",
     "label": "200m canopy shade structure",
-    "wind_improv_ms": 0.095,
-    "utci_improv_c": 0.582
+    "wind_improv_ms": -0.114,
+    "utci_improv_c": 0.232
   },
   "all_scenarios": {
     "A": {
-      "label": "Date palm shade grid (145 trees, courtyard)",
-      "wind_improv_ms": 0.0,
-      "utci_improv_c": 0.054,
-      "frac_wind_pct": 20.7,
-      "frac_utci_pct": 3.9
+      "label": "Date palm shade grid (513 trees, courtyard)",
+      "wind_improv_ms": -0.207,
+      "utci_improv_c": 0.0,
+      "frac_wind_pct": 16.6,
+      "frac_utci_pct": 0.0
     },
     "B": {
       "label": "Asphalt -> pale concrete (high-albedo paving)",
       "wind_improv_ms": -0.0,
-      "utci_improv_c": -0.006,
+      "utci_improv_c": -0.057,
       "frac_wind_pct": 0.0,
       "frac_utci_pct": 0.0
     },
     "C": {
-      "label": "145 date palms + pale concrete (combined)",
-      "wind_improv_ms": 0.0,
-      "utci_improv_c": 0.048,
-      "frac_wind_pct": 20.6,
-      "frac_utci_pct": 3.9
+      "label": "513 date palms + pale concrete (combined)",
+      "wind_improv_ms": -0.207,
+      "utci_improv_c": -0.057,
+      "frac_wind_pct": 16.5,
+      "frac_utci_pct": 0.0
     },
     "D": {
       "label": "200m canopy shade structure",
-      "wind_improv_ms": 0.095,
-      "utci_improv_c": 0.582,
-      "frac_wind_pct": 50.2,
-      "frac_utci_pct": 12.4
+      "wind_improv_ms": -0.114,
+      "utci_improv_c": 0.232,
+      "frac_wind_pct": 26.0,
+      "frac_utci_pct": 4.7
     }
   }
 }

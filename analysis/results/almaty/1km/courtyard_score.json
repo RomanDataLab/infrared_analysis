@@ -2,45 +2,45 @@
   "site_key": "almaty",
   "site_name": "Almaty \u2014 Medeu/Dostyk Embassy Row",
   "climate": "cold",
-  "composite_score": 4.0,
+  "composite_score": 6.6,
   "grade": "A  Good      \u2014 no urgent intervention needed",
   "components": {
-    "Wind trap": 11.3,
-    "Solar deficit": 0.3,
+    "Wind trap": 18.9,
+    "Solar deficit": 0.0,
     "Cold stress": 0.0
   },
   "key_stats": {
-    "wind_mean_ms": 2.9,
-    "sun_mean_h_day": 5.87,
-    "utci_mean_c": -0.89
+    "wind_mean_ms": 3.14,
+    "sun_mean_h_day": 5.99,
+    "utci_mean_c": -0.76
   },
   "best_intervention": {
     "key": "B",
     "label": "Asphalt -> grass (courtyard surface)",
     "wind_improv_ms": 0.0,
-    "utci_improv_c": 0.5
+    "utci_improv_c": 0.439
   },
   "all_scenarios": {
     "A": {
-      "label": "Windbreak birch trees (3-row, N edge)",
-      "wind_improv_ms": 0.0,
-      "utci_improv_c": -0.017,
-      "frac_wind_pct": 0.0,
+      "label": "Windbreak birch trees (3-row, N edge, 920 m wide)",
+      "wind_improv_ms": -0.041,
+      "utci_improv_c": -0.014,
+      "frac_wind_pct": 7.2,
       "frac_utci_pct": 0.0
     },
     "B": {
       "label": "Asphalt -> grass (courtyard surface)",
       "wind_improv_ms": 0.0,
-      "utci_improv_c": 0.5,
+      "utci_improv_c": 0.439,
       "frac_wind_pct": 0.0,
-      "frac_utci_pct": 33.3
+      "frac_utci_pct": 30.4
     },
     "C": {
       "label": "3-row windbreak + grass (combined)",
-      "wind_improv_ms": 0.012,
-      "utci_improv_c": 0.481,
-      "frac_wind_pct": 5.3,
-      "frac_utci_pct": 33.1
+      "wind_improv_ms": -0.011,
+      "utci_improv_c": 0.421,
+      "frac_wind_pct": 8.8,
+      "frac_utci_pct": 30.0
     }
   }
 }
