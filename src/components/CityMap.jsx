@@ -128,9 +128,9 @@ export default function CityMap({ site, batch = [], locked = false, finance = nu
       attributionControl: false,
     })
 
-    // Satellite base layer (ESRI — free, no key)
+    // Satellite base layer — ArcGIS World Imagery Clarity (higher geo-accuracy)
     L.tileLayer(
-      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      'https://clarity.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
       { maxZoom: 19 }
     ).addTo(map)
 
