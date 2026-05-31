@@ -1,5 +1,5 @@
 {
-  "generated": "2026-05-30",
+  "generated": "2026-05-31",
   "sites": [
     {
       "key": "mecca",
@@ -12,54 +12,54 @@
         39.81860263038286,
         21.43122915055695
       ],
-      "composite_score": 83.5,
+      "composite_score": 83.7,
       "grade": "F  Critical  \u2014 fix immediately",
       "grade_short": "F",
       "climate": "hot",
       "components": {
-        "Wind stagnation": 17.7,
+        "Wind stagnation": 18.7,
         "Solar overexposure": 100.0,
         "Heat stress": 100.0
       },
       "key_stats": {
-        "wind_mean_ms": 2.08,
-        "sun_mean_h_day": 10.32,
-        "utci_mean_c": 47.78
+        "wind_mean_ms": 2.0,
+        "sun_mean_h_day": 10.23,
+        "utci_mean_c": 47.95
       },
       "best_intervention": {
         "key": "D",
         "label": "200m canopy shade structure",
-        "wind_improv_ms": 0.068,
-        "utci_improv_c": 0.214
+        "wind_improv_ms": 0.054,
+        "utci_improv_c": 0.237
       },
       "all_scenarios": {
         "A": {
           "label": "Date palm shade grid (513 trees, courtyard)",
-          "wind_improv_ms": 0.001,
+          "wind_improv_ms": 0.003,
           "utci_improv_c": 0.0,
-          "frac_wind_pct": 0.3,
+          "frac_wind_pct": 0.5,
           "frac_utci_pct": 0.0
         },
         "B": {
           "label": "Asphalt -> pale concrete (high-albedo paving)",
           "wind_improv_ms": -0.0,
-          "utci_improv_c": -0.018,
+          "utci_improv_c": -0.02,
           "frac_wind_pct": 0.0,
           "frac_utci_pct": 0.0
         },
         "C": {
           "label": "513 date palms + pale concrete (combined)",
-          "wind_improv_ms": -0.002,
-          "utci_improv_c": -0.018,
-          "frac_wind_pct": 0.3,
+          "wind_improv_ms": 0.003,
+          "utci_improv_c": -0.02,
+          "frac_wind_pct": 0.5,
           "frac_utci_pct": 0.0
         },
         "D": {
           "label": "200m canopy shade structure",
-          "wind_improv_ms": 0.068,
-          "utci_improv_c": 0.214,
-          "frac_wind_pct": 16.5,
-          "frac_utci_pct": 3.7
+          "wind_improv_ms": 0.054,
+          "utci_improv_c": 0.237,
+          "frac_wind_pct": 14.7,
+          "frac_utci_pct": 4.0
         }
       },
       "heatmaps": {
@@ -102,49 +102,49 @@
       "grade_short": "F",
       "climate": "hot",
       "components": {
-        "Wind stagnation": 3.2,
+        "Wind stagnation": 2.9,
         "Solar overexposure": 100.0,
         "Heat stress": 100.0
       },
       "key_stats": {
-        "wind_mean_ms": 2.63,
+        "wind_mean_ms": 2.75,
         "sun_mean_h_day": 9.66,
-        "utci_mean_c": 46.56
+        "utci_mean_c": 46.54
       },
       "best_intervention": {
         "key": "D",
         "label": "200m canopy shade structure",
-        "wind_improv_ms": -0.114,
-        "utci_improv_c": 0.232
+        "wind_improv_ms": -0.208,
+        "utci_improv_c": 0.183
       },
       "all_scenarios": {
         "A": {
           "label": "Date palm shade grid (513 trees, courtyard)",
-          "wind_improv_ms": -0.207,
+          "wind_improv_ms": -0.288,
           "utci_improv_c": 0.0,
-          "frac_wind_pct": 16.6,
+          "frac_wind_pct": 16.3,
           "frac_utci_pct": 0.0
         },
         "B": {
           "label": "Asphalt -> pale concrete (high-albedo paving)",
           "wind_improv_ms": -0.0,
-          "utci_improv_c": -0.057,
+          "utci_improv_c": -0.059,
           "frac_wind_pct": 0.0,
           "frac_utci_pct": 0.0
         },
         "C": {
           "label": "513 date palms + pale concrete (combined)",
-          "wind_improv_ms": -0.207,
-          "utci_improv_c": -0.057,
-          "frac_wind_pct": 16.5,
+          "wind_improv_ms": -0.282,
+          "utci_improv_c": -0.059,
+          "frac_wind_pct": 16.4,
           "frac_utci_pct": 0.0
         },
         "D": {
           "label": "200m canopy shade structure",
-          "wind_improv_ms": -0.114,
-          "utci_improv_c": 0.232,
-          "frac_wind_pct": 26.0,
-          "frac_utci_pct": 4.7
+          "wind_improv_ms": -0.208,
+          "utci_improv_c": 0.183,
+          "frac_wind_pct": 23.4,
+          "frac_utci_pct": 3.8
         }
       },
       "heatmaps": {
@@ -182,47 +182,47 @@
         71.41416167382845,
         51.16486215055696
       ],
-      "composite_score": 55.3,
+      "composite_score": 56.0,
       "grade": "D  Poor      \u2014 include in next cycle",
       "grade_short": "D",
       "climate": "cold",
       "components": {
-        "Wind trap": 72.3,
+        "Wind trap": 74.2,
         "Solar deficit": 0.0,
         "Cold stress": 100.0
       },
       "key_stats": {
-        "wind_mean_ms": 5.56,
+        "wind_mean_ms": 5.65,
         "sun_mean_h_day": 6.05,
-        "utci_mean_c": -28.25
+        "utci_mean_c": -28.18
       },
       "best_intervention": {
         "key": "C",
         "label": "3-row windbreak + grass (combined)",
-        "wind_improv_ms": 0.049,
+        "wind_improv_ms": 0.035,
         "utci_improv_c": 0.027
       },
       "all_scenarios": {
         "A": {
           "label": "Windbreak elm trees (3-row, N edge, 920 m wide)",
-          "wind_improv_ms": -0.019,
-          "utci_improv_c": -0.017,
-          "frac_wind_pct": 11.3,
+          "wind_improv_ms": -0.032,
+          "utci_improv_c": -0.021,
+          "frac_wind_pct": 6.1,
           "frac_utci_pct": 0.0
         },
         "B": {
           "label": "Asphalt -> grass (courtyard surface)",
           "wind_improv_ms": 0.0,
-          "utci_improv_c": 0.044,
+          "utci_improv_c": 0.047,
           "frac_wind_pct": 0.0,
-          "frac_utci_pct": 5.0
+          "frac_utci_pct": 5.9
         },
         "C": {
           "label": "3-row windbreak + grass (combined)",
-          "wind_improv_ms": 0.049,
+          "wind_improv_ms": 0.035,
           "utci_improv_c": 0.027,
-          "frac_wind_pct": 9.6,
-          "frac_utci_pct": 5.0
+          "frac_wind_pct": 8.8,
+          "frac_utci_pct": 5.8
         }
       },
       "heatmaps": {
@@ -256,47 +256,47 @@
         76.95446204253241,
         43.24970715055695
       ],
-      "composite_score": 6.6,
+      "composite_score": 8.1,
       "grade": "A  Good      \u2014 no urgent intervention needed",
       "grade_short": "A",
       "climate": "cold",
       "components": {
-        "Wind trap": 18.9,
+        "Wind trap": 23.1,
         "Solar deficit": 0.0,
         "Cold stress": 0.0
       },
       "key_stats": {
-        "wind_mean_ms": 3.14,
-        "sun_mean_h_day": 5.99,
-        "utci_mean_c": -0.76
+        "wind_mean_ms": 3.23,
+        "sun_mean_h_day": 6.0,
+        "utci_mean_c": -0.79
       },
       "best_intervention": {
-        "key": "B",
-        "label": "Asphalt -> grass (courtyard surface)",
-        "wind_improv_ms": 0.0,
-        "utci_improv_c": 0.439
+        "key": "C",
+        "label": "3-row windbreak + grass (combined)",
+        "wind_improv_ms": 0.021,
+        "utci_improv_c": 0.414
       },
       "all_scenarios": {
         "A": {
           "label": "Windbreak birch trees (3-row, N edge, 920 m wide)",
-          "wind_improv_ms": -0.041,
-          "utci_improv_c": -0.014,
-          "frac_wind_pct": 7.2,
+          "wind_improv_ms": 0.034,
+          "utci_improv_c": -0.015,
+          "frac_wind_pct": 13.4,
           "frac_utci_pct": 0.0
         },
         "B": {
           "label": "Asphalt -> grass (courtyard surface)",
           "wind_improv_ms": 0.0,
-          "utci_improv_c": 0.439,
+          "utci_improv_c": 0.433,
           "frac_wind_pct": 0.0,
-          "frac_utci_pct": 30.4
+          "frac_utci_pct": 30.9
         },
         "C": {
           "label": "3-row windbreak + grass (combined)",
-          "wind_improv_ms": -0.011,
-          "utci_improv_c": 0.421,
-          "frac_wind_pct": 8.8,
-          "frac_utci_pct": 30.0
+          "wind_improv_ms": 0.021,
+          "utci_improv_c": 0.414,
+          "frac_wind_pct": 9.4,
+          "frac_utci_pct": 30.4
         }
       },
       "heatmaps": {

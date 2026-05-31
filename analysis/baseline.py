@@ -174,9 +174,11 @@ def main(site_key, size=500):
     out  = results_dir(site_key, size)
 
     polygon  = site["polygon"] if size == 500 else site["polygon_1km"]
-    # Use the wider context polygon (1500 m) for building & vegetation fetch so
-    # that surrounding urban morphology enters the simulation domain.
-    ctx_poly = site.get("context_polygon", polygon)
+    # Context polygon for building/vegetation fetch:
+    #   500m analysis → 1500m context (1000m buffer each side)
+    #   1km  analysis → 2000m context ( 500m buffer each side, per user spec)
+    ctx_poly = site.get("context_polygon_1km", site["context_polygon"]) \
+               if size == 1000 else site.get("context_polygon", polygon)
     loc      = Location(latitude=site["lat"], longitude=site["lon"])
     climate  = site["climate"]
 

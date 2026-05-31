@@ -1,38 +1,38 @@
 {
   "A": {
     "label": "Date palm shade grid (513 trees, courtyard)",
-    "wind_delta_raw": -0.001,
+    "wind_delta_raw": -0.003,
     "utci_delta_raw": 0.0,
-    "wind_improvement": 0.001,
+    "wind_improvement": 0.003,
     "utci_improvement": 0.0,
-    "frac_wind_improved": 0.003,
+    "frac_wind_improved": 0.005,
     "frac_utci_improved": 0.0
   },
   "B": {
     "label": "Asphalt -> pale concrete (high-albedo paving)",
     "wind_delta_raw": 0.0,
-    "utci_delta_raw": -0.018,
+    "utci_delta_raw": -0.02,
     "wind_improvement": -0.0,
-    "utci_improvement": -0.018,
+    "utci_improvement": -0.02,
     "frac_wind_improved": 0.0,
     "frac_utci_improved": 0.0
   },
   "C": {
     "label": "513 date palms + pale concrete (combined)",
-    "wind_delta_raw": 0.002,
-    "utci_delta_raw": -0.018,
-    "wind_improvement": -0.002,
-    "utci_improvement": -0.018,
-    "frac_wind_improved": 0.003,
+    "wind_delta_raw": -0.003,
+    "utci_delta_raw": -0.02,
+    "wind_improvement": 0.003,
+    "utci_improvement": -0.02,
+    "frac_wind_improved": 0.005,
     "frac_utci_improved": 0.0
   },
   "D": {
     "label": "200m canopy shade structure",
-    "wind_delta_raw": 0.068,
-    "utci_delta_raw": -0.214,
-    "wind_improvement": 0.068,
-    "utci_improvement": 0.214,
-    "frac_wind_improved": 0.165,
-    "frac_utci_improved": 0.037
+    "wind_delta_raw": 0.054,
+    "utci_delta_raw": -0.237,
+    "wind_improvement": 0.054,
+    "utci_improvement": 0.237,
+    "frac_wind_improved": 0.147,
+    "frac_utci_improved": 0.04
   }
 }

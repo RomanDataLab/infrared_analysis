@@ -1,29 +1,29 @@
 {
   "A": {
     "label": "Windbreak birch trees (3-row, N edge, 920 m wide)",
-    "wind_delta_raw": -0.041,
-    "utci_delta_raw": 0.014,
-    "wind_improvement": -0.041,
-    "utci_improvement": -0.014,
-    "frac_wind_improved": 0.072,
+    "wind_delta_raw": 0.034,
+    "utci_delta_raw": 0.015,
+    "wind_improvement": 0.034,
+    "utci_improvement": -0.015,
+    "frac_wind_improved": 0.134,
     "frac_utci_improved": 0.0
   },
   "B": {
     "label": "Asphalt -> grass (courtyard surface)",
     "wind_delta_raw": 0.0,
-    "utci_delta_raw": -0.439,
+    "utci_delta_raw": -0.433,
     "wind_improvement": 0.0,
-    "utci_improvement": 0.439,
+    "utci_improvement": 0.433,
     "frac_wind_improved": 0.0,
-    "frac_utci_improved": 0.304
+    "frac_utci_improved": 0.309
   },
   "C": {
     "label": "3-row windbreak + grass (combined)",
-    "wind_delta_raw": -0.011,
-    "utci_delta_raw": -0.421,
-    "wind_improvement": -0.011,
-    "utci_improvement": 0.421,
-    "frac_wind_improved": 0.088,
-    "frac_utci_improved": 0.3
+    "wind_delta_raw": 0.021,
+    "utci_delta_raw": -0.414,
+    "wind_improvement": 0.021,
+    "utci_improvement": 0.414,
+    "frac_wind_improved": 0.094,
+    "frac_utci_improved": 0.304
   }
 }

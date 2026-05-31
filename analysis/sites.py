@@ -42,9 +42,9 @@ def _polygon_1km(lat_c, lon_c):
 
 def _polygon_context(lat_c, lon_c, size_m=1500):
     """
-    Return a wider context polygon (default 1 500 m) for building & vegetation
-    fetch.  Surrounding urban morphology (wind channelling, solar shadowing) is
-    captured even though the analysis *output* stays at the inner 1 km grid.
+    Return a wider context polygon for building & vegetation fetch.
+    Default 1 500 m is used for the 500m analysis polygon.
+    For 1km analysis polygon, pass size_m=2000 (1000m + 500m buffer each side).
     """
     half_lat = (size_m / 2) / 111_320
     half_lon = (size_m / 2) / (111_320 * math.cos(math.radians(lat_c)))
@@ -114,12 +114,13 @@ def _almaty_windbreak(north_m=220):
     return trees
 
 SITES["almaty"] = {
-    "name":            "Almaty — Medeu/Dostyk Embassy Row",
-    "lat":             _ALM_LAT,
-    "lon":             _ALM_LON,
-    "polygon":         _polygon_500m(_ALM_LAT, _ALM_LON),
-    "polygon_1km":     _polygon_1km(_ALM_LAT, _ALM_LON),
-    "context_polygon": _polygon_context(_ALM_LAT, _ALM_LON),
+    "name":              "Almaty — Medeu/Dostyk Embassy Row",
+    "lat":               _ALM_LAT,
+    "lon":               _ALM_LON,
+    "polygon":           _polygon_500m(_ALM_LAT, _ALM_LON),
+    "polygon_1km":       _polygon_1km(_ALM_LAT, _ALM_LON),
+    "context_polygon":   _polygon_context(_ALM_LAT, _ALM_LON),          # 1500m — for 500m analysis
+    "context_polygon_1km": _polygon_context(_ALM_LAT, _ALM_LON, 2000),  # 2000m — 1km + 500m buffer
     "climate":         "cold",
     "weather_radius":  150,
 
@@ -205,12 +206,13 @@ def _riyadh_shade_trees():
     return trees
 
 SITES["riyadh"] = {
-    "name":            "Riyadh — Al-Murabba / Diriyah Gate",
-    "lat":             _RIY_LAT,
-    "lon":             _RIY_LON,
-    "polygon":         _polygon_500m(_RIY_LAT, _RIY_LON),
-    "polygon_1km":     _polygon_1km(_RIY_LAT, _RIY_LON),
-    "context_polygon": _polygon_context(_RIY_LAT, _RIY_LON),
+    "name":              "Riyadh — Al-Murabba / Diriyah Gate",
+    "lat":               _RIY_LAT,
+    "lon":               _RIY_LON,
+    "polygon":           _polygon_500m(_RIY_LAT, _RIY_LON),
+    "polygon_1km":       _polygon_1km(_RIY_LAT, _RIY_LON),
+    "context_polygon":   _polygon_context(_RIY_LAT, _RIY_LON),
+    "context_polygon_1km": _polygon_context(_RIY_LAT, _RIY_LON, 2000),
     "climate":         "hot",
     "weather_radius":  100,
 
@@ -297,12 +299,13 @@ def _astana_windbreak(north_m=220):
     return trees
 
 SITES["astana"] = {
-    "name":            "Astana — Northern Government Quarter",
-    "lat":             _AST_LAT,
-    "lon":             _AST_LON,
-    "polygon":         _polygon_500m(_AST_LAT, _AST_LON),
-    "polygon_1km":     _polygon_1km(_AST_LAT, _AST_LON),
-    "context_polygon": _polygon_context(_AST_LAT, _AST_LON),
+    "name":              "Astana — Northern Government Quarter",
+    "lat":               _AST_LAT,
+    "lon":               _AST_LON,
+    "polygon":           _polygon_500m(_AST_LAT, _AST_LON),
+    "polygon_1km":       _polygon_1km(_AST_LAT, _AST_LON),
+    "context_polygon":   _polygon_context(_AST_LAT, _AST_LON),
+    "context_polygon_1km": _polygon_context(_AST_LAT, _AST_LON, 2000),
     "climate":         "cold",
     "weather_radius":  150,
 
@@ -387,12 +390,13 @@ def _mecca_shade_trees():
     return trees
 
 SITES["mecca"] = {
-    "name":            "Mecca — Masjid al-Haram surrounds",
-    "lat":             _MKK_LAT,
-    "lon":             _MKK_LON,
-    "polygon":         _polygon_500m(_MKK_LAT, _MKK_LON),
-    "polygon_1km":     _polygon_1km(_MKK_LAT, _MKK_LON),
-    "context_polygon": _polygon_context(_MKK_LAT, _MKK_LON),
+    "name":              "Mecca — Masjid al-Haram surrounds",
+    "lat":               _MKK_LAT,
+    "lon":               _MKK_LON,
+    "polygon":           _polygon_500m(_MKK_LAT, _MKK_LON),
+    "polygon_1km":       _polygon_1km(_MKK_LAT, _MKK_LON),
+    "context_polygon":   _polygon_context(_MKK_LAT, _MKK_LON),
+    "context_polygon_1km": _polygon_context(_MKK_LAT, _MKK_LON, 2000),
     "climate":         "hot",
     "weather_radius":  100,
 

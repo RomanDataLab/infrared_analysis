@@ -2,45 +2,45 @@
   "site_key": "astana",
   "site_name": "Astana \u2014 Northern Government Quarter",
   "climate": "cold",
-  "composite_score": 55.3,
+  "composite_score": 56.0,
   "grade": "D  Poor      \u2014 include in next cycle",
   "components": {
-    "Wind trap": 72.3,
+    "Wind trap": 74.2,
     "Solar deficit": 0.0,
     "Cold stress": 100.0
   },
   "key_stats": {
-    "wind_mean_ms": 5.56,
+    "wind_mean_ms": 5.65,
     "sun_mean_h_day": 6.05,
-    "utci_mean_c": -28.25
+    "utci_mean_c": -28.18
   },
   "best_intervention": {
     "key": "C",
     "label": "3-row windbreak + grass (combined)",
-    "wind_improv_ms": 0.049,
+    "wind_improv_ms": 0.035,
     "utci_improv_c": 0.027
   },
   "all_scenarios": {
     "A": {
       "label": "Windbreak elm trees (3-row, N edge, 920 m wide)",
-      "wind_improv_ms": -0.019,
-      "utci_improv_c": -0.017,
-      "frac_wind_pct": 11.3,
+      "wind_improv_ms": -0.032,
+      "utci_improv_c": -0.021,
+      "frac_wind_pct": 6.1,
       "frac_utci_pct": 0.0
     },
     "B": {
       "label": "Asphalt -> grass (courtyard surface)",
       "wind_improv_ms": 0.0,
-      "utci_improv_c": 0.044,
+      "utci_improv_c": 0.047,
       "frac_wind_pct": 0.0,
-      "frac_utci_pct": 5.0
+      "frac_utci_pct": 5.9
     },
     "C": {
       "label": "3-row windbreak + grass (combined)",
-      "wind_improv_ms": 0.049,
+      "wind_improv_ms": 0.035,
       "utci_improv_c": 0.027,
-      "frac_wind_pct": 9.6,
-      "frac_utci_pct": 5.0
+      "frac_wind_pct": 8.8,
+      "frac_utci_pct": 5.8
     }
   }
 }
