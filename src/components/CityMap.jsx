@@ -128,10 +128,11 @@ export default function CityMap({ site, batch = [], locked = false, finance = nu
       attributionControl: false,
     })
 
-    // Satellite base layer — ArcGIS World Imagery Clarity (higher geo-accuracy)
+    // Satellite base layer — Mapbox Satellite (best OSM alignment globally)
+    const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN ?? ''
     L.tileLayer(
-      'https://clarity.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      { maxZoom: 19 }
+      `https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=${MAPBOX_TOKEN}`,
+      { maxZoom: 20, tileSize: 512, zoomOffset: -1 }
     ).addTo(map)
 
     // Streets label overlay (subtle)
