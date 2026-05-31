@@ -154,7 +154,7 @@ export default function CityMap({ site, batch = [], locked = false, finance = nu
     // Heatmap overlay — stretched over the ACTUAL API grid bounds so pixels
     // land on the correct geographic coordinates regardless of tile-snap.
     const overlay = L.imageOverlay(
-      `/heatmaps/${site.key}/baseline_utci_overlay.png`,
+      `/${site.heatmaps?.baseline_utci_overlay ?? `heatmaps/${site.key}/baseline_utci_overlay.png`}`,
       imgBounds,
       { opacity: 0.72 }
     ).addTo(map)
@@ -240,7 +240,7 @@ export default function CityMap({ site, batch = [], locked = false, finance = nu
 
     // New overlay starts transparent — CSS transition fades it in
     const next = L.imageOverlay(
-      `/heatmaps/${site.key}/${activeLayer}_overlay.png`,
+      `/${site.heatmaps?.[`${activeLayer}_overlay`] ?? `heatmaps/${site.key}/${activeLayer}_overlay.png`}`,
       imgBounds,
       { opacity: 0 }
     ).addTo(map)
