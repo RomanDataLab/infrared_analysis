@@ -328,3 +328,118 @@
   white-space: nowrap;
   gap: 8px;
 }
+
+/* ── Building outline layer ─────────────────────────────────────────────────── */
+.layer-btn-bldg {
+  border-style: dashed !important;
+}
+
+.bldg-tooltip {
+  background: rgba(8, 12, 24, 0.88) !important;
+  border: 1px solid rgba(0, 229, 255, 0.35) !important;
+  color: rgba(224, 232, 255, 0.85) !important;
+  font-size: 10px !important;
+  font-family: inherit !important;
+  padding: 3px 7px !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+}
+.bldg-tooltip::before {
+  border-top-color: rgba(0, 229, 255, 0.35) !important;
+}
+.bldg-tooltip-overture {
+  border-color: rgba(224, 64, 251, 0.45) !important;
+}
+.bldg-tooltip-overture::before {
+  border-top-color: rgba(224, 64, 251, 0.45) !important;
+}
+
+/* Building count badge — bottom-left over the map */
+.bldg-badge {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  z-index: 500;
+  background: rgba(8, 12, 24, 0.82);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(0, 229, 255, 0.18);
+  border-radius: 5px;
+  padding: 3px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  pointer-events: none;
+}
+.bldg-badge-osm {
+  color: #00e5ff;
+}
+.bldg-badge-ov {
+  color: #e040fb;
+}
+.bldg-badge-ms {
+  color: #76ff03;
+}
+
+.bldg-tooltip-ms {
+  border-color: rgba(118, 255, 3, 0.45) !important;
+}
+.bldg-tooltip-ms::before {
+  border-top-color: rgba(118, 255, 3, 0.45) !important;
+}
+
+/* ── Tree canopy layer ─────────────────────────────────────────────────────── */
+.layer-btn-tree {
+  border-style: dotted !important;
+}
+
+.tree-tooltip {
+  background: rgba(8, 12, 24, 0.88) !important;
+  border: 1px solid rgba(102, 187, 106, 0.40) !important;
+  color: rgba(224, 232, 255, 0.85) !important;
+  font-size: 10px !important;
+  font-family: inherit !important;
+  padding: 3px 7px !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+}
+.tree-tooltip::before {
+  border-top-color: rgba(102, 187, 106, 0.40) !important;
+}
+.tree-tooltip-ground {
+  border-color: rgba(46, 125, 50, 0.45) !important;
+}
+.tree-tooltip-ground::before {
+  border-top-color: rgba(46, 125, 50, 0.45) !important;
+}
+
+/* Tree count badge */
+.tree-badge {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  z-index: 500;
+  background: rgba(8, 12, 24, 0.82);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(102, 187, 106, 0.18);
+  border-radius: 5px;
+  padding: 3px 8px;
+  font-size: 10px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  pointer-events: none;
+}
+.tree-badge-osm {
+  color: #66bb6a;
+}
+.tree-badge-ground {
+  color: #2e7d32;
+}
+.tree-badge-ov {
+  color: #aed581;
+}

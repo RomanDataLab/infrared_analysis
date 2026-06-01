@@ -50,6 +50,7 @@ from infrared_sdk.analyses.types import (
     UtciModelBaseRequest,
     AnalysesName,
 )
+from infrared_sdk.buildings.types import DotBimMesh
 from infrared_sdk.models import TimePeriod, Location
 from sites import SITES
 
@@ -142,6 +143,19 @@ def legend_bounds(result, grid):
     return lo, hi
 
 
+def load_cached(out_dir):
+    """Load buildings, vegetation, ground_materials, weather UUID from cached fetched_data.json."""
+    with open(out_dir / "fetched_data.json") as f:
+        data = json.load(f)
+    buildings = {k: DotBimMesh(**v) for k, v in data["buildings"].items()}
+    veg_raw = data["vegetation"]
+    vegetation = veg_raw if (veg_raw and len(veg_raw) >= 10) else None
+    ground_materials = {k: v for k, v in data["ground_materials"].items()
+                        if k in VALID_MATERIALS}
+    station_id = data.get("weather_station_uuid")
+    return buildings, vegetation, ground_materials, station_id
+
+
 def cache_fetched(out_dir, buildings, area_veg, layers, overture_checked: bool = False):
     """
     Persist fetched (and optionally Overture-enriched) data to fetched_data.json
@@ -169,16 +183,20 @@ def cache_fetched(out_dir, buildings, area_veg, layers, overture_checked: bool =
 # Main
 # ---------------------------------------------------------------------------
 
-def main(site_key, size=500):
+def main(site_key, size=500, cached=False, buffer_m=None):
     site = SITES[site_key]
     out  = results_dir(site_key, size)
 
     polygon  = site["polygon"] if size == 500 else site["polygon_1km"]
     # Context polygon for building/vegetation fetch:
-    #   500m analysis → 1500m context (1000m buffer each side)
-    #   1km  analysis → 2000m context ( 500m buffer each side, per user spec)
-    ctx_poly = site.get("context_polygon_1km", site["context_polygon"]) \
-               if size == 1000 else site.get("context_polygon", polygon)
+    #   --buffer 200 + --size 1000 -> use 1400m context polygon
+    #   default 500m analysis -> 1500m context, 1km analysis -> 2000m context
+    if buffer_m == 200 and size == 1000:
+        ctx_poly = site.get("context_polygon_1km_200", site["context_polygon_1km"])
+    elif size == 1000:
+        ctx_poly = site.get("context_polygon_1km", site["context_polygon"])
+    else:
+        ctx_poly = site.get("context_polygon", polygon)
     loc      = Location(latitude=site["lat"], longitude=site["lon"])
     climate  = site["climate"]
 
@@ -195,109 +213,120 @@ def main(site_key, size=500):
     tp_utci  = TimePeriod(start_month=um, start_day=1,  start_hour=uh_s,
                           end_month=um,   end_day=days_in_month[um], end_hour=uh_e)
 
+    ctx_label = f"{int(size + 2 * (buffer_m or 500))} m" if buffer_m else ("1.5 km" if size == 500 else "2 km")
     print(f"\n=== {site['name']} ===")
     print(f"      analysis polygon : {size} m")
-    print(f"      context polygon  : 1.5 km  (buildings + vegetation fetch)")
+    print(f"      context polygon  : {ctx_label}  (buildings + vegetation fetch)")
+    if cached:
+        print(f"      mode             : CACHED (loading from fetched_data.json)")
 
     with InfraredClient() as client:
 
-        # -- Fetch context layers (from wider 1500 m polygon) ----------------
-        print("\n[1/6] Fetching buildings (context area 1500 m)...")
-        area = client.buildings.get_area(ctx_poly)
-        n_fail = len(area.failed_tiles) if area.failed_tiles else 0
-        print(f"      {len(area.buildings)} buildings (OSM)"
-              + (f"  ({n_fail} tiles failed)" if n_fail else ""))
+        if cached:
+            # -- Load from cache (skip fetch steps 1-4) ----------------------
+            print("\n[1-3/6] Loading cached data from fetched_data.json...")
+            enriched_buildings, veg_for_sim, layers, station_id = load_cached(out)
+            print(f"      {len(enriched_buildings)} buildings")
+            print(f"      vegetation: {'yes' if veg_for_sim else 'None (sparse)'}")
+            print(f"      ground layers: {list(layers.keys())}")
+            print(f"      weather UUID: {station_id[:8] if station_id else 'None'}...")
+        else:
+            # -- Fetch context layers (from wider polygon) -------------------
+            print(f"\n[1/6] Fetching buildings (context area {ctx_label})...")
+            area = client.buildings.get_area(ctx_poly)
+            n_fail = len(area.failed_tiles) if area.failed_tiles else 0
+            print(f"      {len(area.buildings)} buildings (OSM)"
+                  + (f"  ({n_fail} tiles failed)" if n_fail else ""))
 
-        # Optional enrichment: add Overture Maps buildings not present in OSM.
-        # Falls back silently to OSM-only if overturemaps/shapely not installed.
-        _overture_attempted = False
-        try:
-            from fetch_overture import enrich_buildings as _enrich
-            enriched_buildings  = _enrich(site, area.buildings)
-            _overture_attempted = True          # library present — fetch was attempted
-        except ImportError:
-            enriched_buildings = area.buildings
-
-        print("[2/6] Fetching vegetation (context area 1500 m)...")
-        area_veg = client.vegetation.get_area(ctx_poly)
-        n_trees  = len(area_veg.features)
-        print(f"      {n_trees} trees (OSM)")
-        # If the data source has very sparse tree coverage, passing only a handful
-        # of trees tells the simulation "exactly N trees exist" — worse than no data.
-        # Fall back to None (API internal data) when fewer than 10 trees returned.
-        veg_for_sim = area_veg.features if n_trees >= 10 else None
-        if veg_for_sim is None and n_trees > 0:
-            print(f"      (sparse — {n_trees} trees below threshold; "
-                  f"passing None so API uses its own vegetation data)")
-
-        # Optional enrichment: NDVI-derived tree points from GEE + postprocess_ndvi.py.
-        # If ndvi_trees.json exists and has >= 10 features, use it instead of OSM veg.
-        ndvi_path = out / "ndvi_trees.json"
-        if ndvi_path.exists():
+            # Optional enrichment: add Overture Maps buildings not present in OSM.
+            _overture_attempted = False
             try:
-                with open(ndvi_path) as _f:
-                    _ndvi = json.load(_f)
-                if _ndvi and len(_ndvi) >= 10:
-                    veg_for_sim = _ndvi
-                    print(f"      [ndvi] loaded {len(_ndvi)} canopy points "
-                          f"from ndvi_trees.json (overrides OSM veg)")
-                else:
-                    print(f"      [ndvi] ndvi_trees.json has < 10 features — "
-                          f"keeping OSM vegetation")
-            except Exception as _e:
-                print(f"      [ndvi] could not load ndvi_trees.json: {_e}")
+                from fetch_overture import enrich_buildings as _enrich
+                enriched_buildings  = _enrich(site, area.buildings)
+                _overture_attempted = True
+            except ImportError:
+                enriched_buildings = area.buildings
 
-        print("[3/6] Fetching ground materials...")
-        try:
-            area_gm = client.ground_materials.get_area(polygon)   # keep at 1 km
-            layers  = {k: v for k, v in area_gm.layers.items() if k in VALID_MATERIALS}
-            print(f"      layers: {list(layers.keys())}")
-        except Exception as _gm_err:
-            layers = {}
-            print(f"      WARNING: ground material fetch failed ({_gm_err.__class__.__name__}: "
-                  f"{str(_gm_err)[:120]})")
-            print(f"      Continuing without ground materials — API will use default surface.")
+            print("[2/6] Fetching vegetation (context area)...")
+            area_veg = client.vegetation.get_area(ctx_poly)
+            n_trees  = len(area_veg.features)
+            print(f"      {n_trees} trees (OSM)")
+            veg_for_sim = area_veg.features if n_trees >= 10 else None
+            if veg_for_sim is None and n_trees > 0:
+                print(f"      (sparse -- {n_trees} trees below threshold; "
+                      f"passing None so API uses its own vegetation data)")
 
-        cache_fetched(out, enriched_buildings, area_veg, layers,
-                      overture_checked=_overture_attempted)
+            # Optional enrichment: NDVI-derived tree points
+            ndvi_path = out / "ndvi_trees.json"
+            if ndvi_path.exists():
+                try:
+                    with open(ndvi_path) as _f:
+                        _ndvi = json.load(_f)
+                    if _ndvi and len(_ndvi) >= 10:
+                        veg_for_sim = _ndvi
+                        print(f"      [ndvi] loaded {len(_ndvi)} canopy points "
+                              f"from ndvi_trees.json (overrides OSM veg)")
+                    else:
+                        print(f"      [ndvi] ndvi_trees.json has < 10 features -- "
+                              f"keeping OSM vegetation")
+                except Exception as _e:
+                    print(f"      [ndvi] could not load ndvi_trees.json: {_e}")
+
+            print("[3/6] Fetching ground materials...")
+            try:
+                area_gm = client.ground_materials.get_area(polygon)
+                layers  = {k: v for k, v in area_gm.layers.items() if k in VALID_MATERIALS}
+                print(f"      layers: {list(layers.keys())}")
+            except Exception as _gm_err:
+                layers = {}
+                print(f"      WARNING: ground material fetch failed ({_gm_err.__class__.__name__}: "
+                      f"{str(_gm_err)[:120]})")
+                print(f"      Continuing without ground materials -- API will use default surface.")
+
+            cache_fetched(out, enriched_buildings, area_veg, layers,
+                          overture_checked=_overture_attempted)
 
         # -- Weather station (non-fatal — UUID cached for later UTCI re-runs) --
-        print("[4/6] Finding weather station...")
         weather    = None
-        station_id = None
+        if cached:
+            print(f"[4/6] Weather station (cached UUID: {station_id[:8] if station_id else 'None'}...)")
+        else:
+            print("[4/6] Finding weather station...")
+            station_id = None
         # Try to load cached UUID first (survives API downtime on re-runs)
         _fd_path = out / "fetched_data.json"
-        if _fd_path.exists():
+        if station_id is None and _fd_path.exists():
             try:
                 with open(_fd_path) as _fd:
                     _fd_cache = json.load(_fd)
                 station_id = _fd_cache.get("weather_station_uuid")
                 if station_id:
-                    print(f"      (loaded cached UUID: {station_id[:8]}…)")
+                    print(f"      (loaded cached UUID: {station_id[:8]}...)")
             except Exception:
                 pass
-        try:
-            stations   = client.weather.get_weather_file_from_location(
-                lat=site["lat"], lon=site["lon"], radius=site["weather_radius"]
-            )
-            station_id = stations[0]["uuid"]
-            print(f"      {stations[0]['fileName']}")
-            # Persist UUID so future runs survive weather-endpoint downtime
-            if _fd_path.exists():
-                try:
-                    with open(_fd_path) as _fd:
-                        _fd_cache = json.load(_fd)
-                    _fd_cache["weather_station_uuid"] = station_id
-                    with open(_fd_path, "w") as _fd:
-                        json.dump(_fd_cache, _fd)
-                except Exception:
-                    pass
-        except Exception as _wx_err:
-            print(f"      WARNING: weather station lookup failed ({_wx_err.__class__.__name__})")
-            if station_id:
-                print(f"      Using cached UUID — will retry filter_weather_data")
-            else:
-                print(f"      No cached UUID — UTCI will be skipped")
+        if not cached:
+            try:
+                stations   = client.weather.get_weather_file_from_location(
+                    lat=site["lat"], lon=site["lon"], radius=site["weather_radius"]
+                )
+                station_id = stations[0]["uuid"]
+                print(f"      {stations[0]['fileName']}")
+                # Persist UUID
+                if _fd_path.exists():
+                    try:
+                        with open(_fd_path) as _fd:
+                            _fd_cache = json.load(_fd)
+                        _fd_cache["weather_station_uuid"] = station_id
+                        with open(_fd_path, "w") as _fd:
+                            json.dump(_fd_cache, _fd)
+                    except Exception:
+                        pass
+            except Exception as _wx_err:
+                print(f"      WARNING: weather station lookup failed ({_wx_err.__class__.__name__})")
+                if station_id:
+                    print(f"      Using cached UUID -- will retry filter_weather_data")
+                else:
+                    print(f"      No cached UUID -- UTCI will be skipped")
 
         if station_id is not None:
             try:
@@ -480,5 +509,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--site", choices=list(SITES.keys()), required=True)
     parser.add_argument("--size", type=int, choices=[500, 1000], default=500)
+    parser.add_argument("--cached", action="store_true",
+                        help="Skip API fetch — load buildings/veg/ground from fetched_data.json")
+    parser.add_argument("--buffer", type=int, default=None,
+                        help="Context buffer in metres each side (default: 500 for 500m, 500 for 1km)")
     args = parser.parse_args()
-    main(args.site, size=args.size)
+    main(args.site, size=args.size, cached=args.cached, buffer_m=args.buffer)

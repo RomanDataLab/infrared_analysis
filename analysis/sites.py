@@ -121,6 +121,7 @@ SITES["almaty"] = {
     "polygon_1km":       _polygon_1km(_ALM_LAT, _ALM_LON),
     "context_polygon":   _polygon_context(_ALM_LAT, _ALM_LON),          # 1500m — for 500m analysis
     "context_polygon_1km": _polygon_context(_ALM_LAT, _ALM_LON, 2000),  # 2000m — 1km + 500m buffer
+    "context_polygon_1km_200": _polygon_context(_ALM_LAT, _ALM_LON, 1400),  # 1400m — 1km + 200m buffer
     "climate":         "cold",
     "weather_radius":  150,
 
@@ -213,6 +214,7 @@ SITES["riyadh"] = {
     "polygon_1km":       _polygon_1km(_RIY_LAT, _RIY_LON),
     "context_polygon":   _polygon_context(_RIY_LAT, _RIY_LON),
     "context_polygon_1km": _polygon_context(_RIY_LAT, _RIY_LON, 2000),
+    "context_polygon_1km_200": _polygon_context(_RIY_LAT, _RIY_LON, 1400),
     "climate":         "hot",
     "weather_radius":  100,
 
@@ -306,6 +308,7 @@ SITES["astana"] = {
     "polygon_1km":       _polygon_1km(_AST_LAT, _AST_LON),
     "context_polygon":   _polygon_context(_AST_LAT, _AST_LON),
     "context_polygon_1km": _polygon_context(_AST_LAT, _AST_LON, 2000),
+    "context_polygon_1km_200": _polygon_context(_AST_LAT, _AST_LON, 1400),
     "climate":         "cold",
     "weather_radius":  150,
 
@@ -397,6 +400,7 @@ SITES["mecca"] = {
     "polygon_1km":       _polygon_1km(_MKK_LAT, _MKK_LON),
     "context_polygon":   _polygon_context(_MKK_LAT, _MKK_LON),
     "context_polygon_1km": _polygon_context(_MKK_LAT, _MKK_LON, 2000),
+    "context_polygon_1km_200": _polygon_context(_MKK_LAT, _MKK_LON, 1400),
     "climate":         "hot",
     "weather_radius":  100,
 

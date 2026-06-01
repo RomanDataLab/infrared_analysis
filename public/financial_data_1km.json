@@ -14,7 +14,7 @@
     "delta_kwh_m2_yr": 0.69,
     "stranded_rcp45": true,
     "projected_utci_2050": 47.8,
-    "rcp45_discount_frac": 0.071
+    "rcp45_discount_frac": 0.07
   },
   "mecca": {
     "capex_usd": 200000,
@@ -30,8 +30,8 @@
     "delta_utci_c": 0.237,
     "delta_kwh_m2_yr": 0.89,
     "stranded_rcp45": true,
-    "projected_utci_2050": 49.3,
-    "rcp45_discount_frac": 0.123
+    "projected_utci_2050": 49.1,
+    "rcp45_discount_frac": 0.118
   },
   "almaty": {
     "capex_usd": 90000,

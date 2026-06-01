@@ -34,18 +34,18 @@
     "climate": "cold"
   },
   "wind": {
-    "mean_ms": 5.65,
-    "max_ms": 16.94,
-    "frac_gt5ms": 0.532,
-    "frac_lt1ms": 0.016
+    "mean_ms": 5.42,
+    "max_ms": 16.77,
+    "frac_gt5ms": 0.501,
+    "frac_lt1ms": 0.017
   },
   "sun": {
-    "mean_hrs_day": 6.05,
-    "frac_lt1h": 0.065,
-    "frac_gt5h": 0.836
+    "mean_hrs_day": 5.98,
+    "frac_lt1h": 0.07,
+    "frac_gt5h": 0.824
   },
   "utci": {
-    "mean_c": -28.18,
+    "mean_c": -28.21,
     "frac_utci_bad": 1.0
   }
 }

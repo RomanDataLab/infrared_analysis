@@ -100,7 +100,7 @@ Ceremonial spine of Kazakhstan's purpose-built capital (Nurzhol Blvd, master-pla
 ```
 Site polygon (500 m × 500 m)
   └─ Context polygon (1 500 m × 1 500 m)
-        ├─ Buildings fetch   (OSM via Infrared API + Overture Maps enrichment)
+        ├─ Buildings fetch   (OSM via Infrared API + Overture Maps + Microsoft ML)
         ├─ Vegetation fetch  (OSM; < 10 trees → defer to API internal dataset)
         └─ Ground materials  (Mapbox source; fallback: skip if API 500)
 
@@ -134,6 +134,176 @@ Financial model  (25-year NPV, 8 % discount)
 ### Grid alignment
 API grid bounds are tile-snapped and can differ from the analytical polygon by 12–19 m on E/N edges. Bounds are saved per run in `baseline_bounds.json` and used for the Leaflet `imageOverlay` anchor, ensuring heatmap pixels land on the correct streets.
 
+### Building footprint coordinate origins (CRS remapping)
+
+The Infrared SDK, Overture enrichment, and Microsoft enrichment each store
+building mesh vertices in local metres, but relative to **different origins**.
+Exporting to WGS 84 GeoJSON requires using the correct origin per source:
+
+```
+Source              Origin (SW corner of)        Formula
+──────────────────  ──────────────────────────── ─────────────────────────────
+SDK / OSM           Context polygon              _analysis_sw(lat, lon, ctx_size)
+                      500 m analysis → 1 500 m     ctx_size = 1500
+                      1 km  analysis → 2 000 m     ctx_size = 2000
+
+Overture (ov_*)     500 m analysis polygon       _analysis_sw(lat, lon, 500)
+                    (always, regardless of        fetch_overture.py hardcodes
+                     analysis size)                half = 250 m
+
+MS Buildings (ms_*) 500 m analysis polygon       _analysis_sw(lat, lon, 500)
+                    (same as Overture)            fetch_ms_buildings.py uses
+                                                  same origin convention
+```
+
+`_analysis_sw(lat_c, lon_c, size)` returns the SW corner of a square polygon
+of side `size` centred on `(lat_c, lon_c)`:
+
+```python
+half_lat = (size / 2) / 111_320
+half_lon = (size / 2) / (111_320 * cos(radians(lat_c)))
+return lat_c - half_lat, lon_c - half_lon
+```
+
+Conversion back to WGS 84:
+
+```python
+lat = orig_lat + y / 111_320
+lon = orig_lon + x / (111_320 * cos(radians(orig_lat)))
+```
+
+**Verification method:** the same physical building appears in both the 500 m
+and 1 km `fetched_data.json`. Its local coordinates shift by exactly +250 m
+in (x, y) between the two files, confirming a 250 m origin shift per step.
+Using mismatched origins causes a visible ~500 m displacement on the map.
+
+### Footprint polygon extraction (convex hull)
+
+DotBimMesh buildings are stored as 3-D triangle meshes (vertices + face indices).
+Extracting a clean 2-D footprint polygon requires three steps:
+
+```
+1. Ground-vertex extraction
+   ─ Filter vertices where z ≤ z_min + 0.5 m
+   ─ Deduplicate by snapping to 0.02 m grid  (SDK meshes duplicate
+     vertices per face — same position appears 4–8× at different indices)
+
+2. Convex hull  (Andrew's monotone chain, O(n log n))
+   ─ Produces a guaranteed-simple, non-self-intersecting polygon
+   ─ Handles compound buildings (multiple boxes), concave shapes, and
+     degenerate triangulations without special-casing
+   ─ Trade-off: concave notches (L / U shapes) are filled in, but the
+     visual difference at map scale is negligible
+
+3. WGS 84 projection
+   ─ Convert hull vertices from local metres → (lon, lat) using the
+     per-source origin (see CRS remapping table above)
+   ─ Close ring (append first vertex)
+```
+
+**Why not boundary-edge tracing?** SDK meshes use per-face vertex duplication
+and compound multi-box buildings, causing edge tracing to produce self-
+intersecting polygons for ~11 % of OSM buildings. Angle-sort from centroid
+fails on any concave shape. Convex hull achieves **0 % acute-angle polygons**
+across all 4 636 buildings (Mecca 1 km) from all three sources.
+
+### Priority-based spatial merge
+
+Three building sources may contain duplicates of the same physical building.
+Export-time merge deduplicates in WGS 84 using a grid-based spatial index:
+
+```
+Priority:   OSM (0)  >  Overture (1)  >  MS (2)
+
+Algorithm:
+  1. Sort all footprints by source priority (OSM first)
+  2. For each building in priority order:
+     a. Compute bounding box in WGS 84
+     b. Query grid index for nearby accepted buildings
+     c. If bbox IoU ≥ 0.10 with any accepted building → skip (duplicate)
+     d. Otherwise → accept + insert into grid index
+  3. Pass 2 — containment removal:
+     a. Sort accepted buildings by bbox area (largest first)
+     b. For each building, query grid for overlapping neighbours
+     c. If a smaller building's bbox is fully inside a larger one → remove it
+     (catches courtyard artefacts, mesh sub-parts, and MS fills inside OSM)
+  4. Save per-source GeoJSON (buildings_osm / _overture / _ms.geojson)
+     for rollback capability
+  5. Output accepted features as unified buildings.geojson
+
+Grid cell size: 0.0005° (~55 m) — balances lookup speed vs memory
+IoU threshold: 0.10 — tuned to eliminate all visible overlaps
+  (0.25 left ~200 pairs; 0.15 left ~80; 0.10 → 0 pairs with IoU ≥ 10 %)
+```
+
+Typical results (Mecca 1 km):
+
+```
+4 636 raw  →  3 559 merged
+  IoU dedup removed:   813 (118 OSM, 609 Overture, 86 MS)
+  containment removed: 264 (179 OSM, 3 Overture, 82 MS)
+```
+
+Fetch-time dedup (in `fetch_overture.py` / `fetch_ms_buildings.py`) catches
+most duplicates, but operates in mixed local-coordinate spaces. The export-
+time merge in WGS 84 catches residual overlaps, especially Overture buildings
+whose fetch-time dedup used a mismatched coordinate origin for 1 km analysis.
+
+### Tree canopy extraction
+
+Two sources provide tree/vegetation geometry for the frontend overlay:
+
+```
+Source 1 — OSM tree points:
+  ─ Read vegetation dict from fetched_data.json (Point features)
+  ─ Estimate crown radius:
+      • diameter_crown / 2  (if available, usually absent)
+      • height × 0.4        (allometric, if height tag exists)
+      • default: 4 m        (fallback)
+  ─ Generate 24-vertex circular polygon in WGS 84
+
+Source 2 — Ground-material vegetation zones:
+  ─ Read ground_materials.vegetation from fetched_data.json
+  ─ Filter: class ∈ {wood, park, grass} or type ∈ {forest, grassland, …}
+  ─ Strip Z coordinates, simplify with Ramer-Douglas-Peucker (ε = 0.00005°)
+  ─ Split MultiPolygon → individual Polygon features
+
+Post-processing (4 sequential passes):
+  1. Containment removal: small canopies fully inside larger zones -> removed
+     (SpatialGrid + bbox containment check, same as building pipeline)
+  2. Merge overlapping: unary_union all tree polygons, explode MultiPolygon
+     back to individual features. Classify by area: <200 m2 = tree, else zone.
+     Eliminates all polygon overlaps (verified: 0 overlapping pairs).
+  3. Building subtraction: load buildings.geojson, build Shapely STRtree
+     - shapely.difference(tree, building) for each overlap
+     - Drop features fully inside buildings
+     - Split MultiPolygon results into individual features
+  4. Road subtraction: fetch OSM highway centerlines via Overpass API
+     - Buffer each road by half-width based on highway type:
+       motorway 15m, primary 10m, secondary 8m, residential 5m
+     - Merge all road buffers with unary_union
+     - shapely.difference(tree, road) for each overlap
+     - Roads cached locally in analysis/cache/roads/
+```
+
+Typical results (Almaty 1 km):
+  2 263 raw -> 876 merged -> 458 after building + road clip
+  213 clipped by buildings, 30 fully inside buildings
+  101 clipped by roads, 401 fully on roads
+
+Script: `analysis/export_trees_geojson.py`
+
+### Output files per site
+
+```
+public/heatmaps/{site}[/1km]/
+  ├─ buildings.geojson           ← merged (served to frontend)
+  ├─ buildings_osm.geojson       ← OSM only (pre-merge, for rollback)
+  ├─ buildings_overture.geojson  ← Overture only
+  ├─ buildings_ms.geojson        ← Microsoft only
+  └─ trees.geojson               ← tree canopies + vegetation zones
+```
+
 ---
 
 ## 5. Data Sources
@@ -143,6 +313,7 @@ API grid bounds are tile-snapped and can differ from the analytical polygon by 1
 | **Infrared City API v2** | Wind CFD, solar raycast, UTCI simulation, building fetch, vegetation fetch, ground materials, weather station | Core compute engine |
 | **OpenStreetMap** (via Infrared) | Building footprints, tree positions, ground cover | Primary building dataset |
 | **Overture Maps** (via `fetch_overture.py`) | Additional building footprints not in OSM | Enrichment layer; adds ~57 % more buildings for Riyadh |
+| **Microsoft Building Footprints** (via `fetch_ms_buildings.py`) | ML-derived building footprints from Bing imagery | 1.4 B buildings globally; CDLA Permissive 2.0 license |
 | **EnergyPlus TMYx 2009-2023** (via Infrared weather API) | UTCI weather data per site | KAZ_AKM_Astana.351880, SAU stations for Riyadh/Mecca |
 | **Mapbox** (via Infrared ground-material API) | Asphalt / concrete / grass / soil / water layers | Currently returning HTTP 500 — fallback: skip |
 | **Donovan & Butry (2010)** | Hedonic uplift coefficient — trees to property value | Ref [3] |
@@ -173,6 +344,8 @@ API grid bounds are tile-snapped and can differ from the analytical polygon by 1
 | `score.py` | Composite 0–100 score + grade from baseline + scenario stats |
 | `export_web.py` | Bundle all results into `public/renovation_data.json` + `financial_data.json` |
 | `fetch_overture.py` | Enrich OSM buildings with Overture Maps via DuckDB spatial join |
+| `fetch_ms_buildings.py` | Enrich with Microsoft Global ML Building Footprints (1.4 B worldwide) |
+| `export_buildings_geojson.py` | Convert DotBimMesh → WGS 84 GeoJSON for frontend building overlay |
 | `climate_financial_model.py` | Four-layer NPV / ROI model |
 | `generate_financial_data.py` | Write `financial_data.json` from model outputs |
 | `batch.py` | Run full pipeline for all sites sequentially |

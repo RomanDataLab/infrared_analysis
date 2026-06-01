@@ -164,14 +164,22 @@ def generate(site_params: dict | None = None, size: int = 500) -> dict:
 
 
 def main():
-    result = generate()
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--size", type=int, choices=[500, 1000], default=None,
+                        help="Generate for specific size only (default: both)")
+    args = parser.parse_args()
 
-    out = PUBLIC_DIR / "financial_data.json"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    with open(out, "w", encoding="utf-8") as f:
-        json.dump(result, f, indent=2)
+    sizes = [args.size] if args.size else [500, 1000]
+    for sz in sizes:
+        result = generate(size=sz)
+        tag = f"financial_data{'_1km' if sz == 1000 else ''}.json"
+        out = PUBLIC_DIR / tag
+        out.parent.mkdir(parents=True, exist_ok=True)
+        with open(out, "w", encoding="utf-8") as f:
+            json.dump(result, f, indent=2)
+        print(f"\n  Wrote {out}")
 
-    print(f"\n  Wrote {out}")
     print("  Reload the Vite dev server to pick up the new data.\n")
 
 
