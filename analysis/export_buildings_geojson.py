@@ -324,6 +324,12 @@ def export_site(site_key, size=500):
     with open(out_path, "w") as f:
         json.dump(geojson, f)
 
+    # Save merged IDs so baseline.py can filter DotBimMesh buildings to match
+    merged_ids = [f["properties"]["id"] for f in features]
+    ids_path = src / "merged_ids.json"
+    with open(ids_path, "w") as f:
+        json.dump(merged_ids, f)
+
     n_osm = sum(1 for f in features if f["properties"]["source"] == "osm")
     n_ov  = sum(1 for f in features if f["properties"]["source"] == "overture")
     n_ms  = sum(1 for f in features if f["properties"]["source"] == "ms")
@@ -335,6 +341,7 @@ def export_site(site_key, size=500):
         parts.append(f"{n_ms} MS")
     before = len(raw_features)
     print(f"  [{tag}] {before} raw -> {len(features)} merged ({' + '.join(parts)})")
+    print(f"    saved {len(merged_ids)} merged IDs -> {ids_path.name}")
     return len(features)
 
 

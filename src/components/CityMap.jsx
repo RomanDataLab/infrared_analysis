@@ -622,7 +622,7 @@ export default function CityMap({ site, batch = [], locked = false, finance = nu
       {/* ── Finance strip ── */}
       {finance && (
         <div className="city-finance">
-          <span className="finance-prefix">NPV</span>
+          <span className="finance-prefix" title="Net Present Value: total value created by the renovation (energy savings + property uplift + demand premium + climate risk avoided) minus the capital expenditure.">NPV</span>
           <span className="finance-npv">{fmtMoney(finance.npv_usd)}</span>
           <span className="stat-dot">&middot;</span>
           <span className="finance-roi" style={{ color: roiColor(finance.roi_pct) }}>
@@ -631,7 +631,7 @@ export default function CityMap({ site, batch = [], locked = false, finance = nu
           <span className="stat-dot">&middot;</span>
           <span className="finance-scenario">Scenario {finance.scenario_key}</span>
           {finance.stranded_rcp45 && (
-            <span className="finance-stranded" title="Projected UTCI \u2265 46 \u00b0C by 2050 under RCP 4.5">
+            <span className="finance-stranded" title="Stranded asset: projected outdoor thermal conditions (UTCI) exceed 46 °C by 2050 under RCP 4.5 warming. Outdoor spaces become economically unviable — property values face a mandatory discount (up to 25%). Renovation scenarios reduce current UTCI but cannot fully offset the 2050 trajectory.">
               \u26a0 Stranded 2050
             </span>
           )}

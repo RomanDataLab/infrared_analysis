@@ -5,7 +5,7 @@ Four sites, one pipeline.
 
   almaty  →  Medeu/Dostyk Embassy Row      (43.245N, 76.948E)  —  winter cold stress
   riyadh  →  Al-Murabba / Diriyah Gate     (24.692N, 46.709E)  —  summer heat stress
-  astana  →  Bayterek / Nurzhol Blvd       (51.128N, 71.430E)  —  steppe cold stress
+  astana  →  Kenesary St / Saryarka Ave    (51.160N, 71.407E)  —  steppe cold stress
   mecca   →  Masjid al-Haram surrounds     (21.427N, 39.814E)  —  extreme heat stress
 
 Primary analysis polygons are 500 m × 500 m (study area).
@@ -275,8 +275,8 @@ SITES["riyadh"] = {
 }
 
 
-# ── Astana — Bayterek / Nurzhol Blvd ────────────────────────────────────────
-_AST_LAT, _AST_LON = 51.160155, 71.406656   # Northern Government Quarter / Ak Bulak Left Bank
+# ── Astana — Kenesary St / Saryarka Ave ─────────────────────────────────────
+_AST_LAT, _AST_LON = 51.160155, 71.406656   # Kenesary–Saryarka junction / Ishim River Right Bank
 
 # Windbreak: 3 staggered rows of elm trees along the north edge
 # north_m = distance of first row from site centre (sized to polygon half-width - 30m margin)
@@ -301,7 +301,7 @@ def _astana_windbreak(north_m=220):
     return trees
 
 SITES["astana"] = {
-    "name":              "Astana — Northern Government Quarter",
+    "name":              "Astana — Kenesary St / Saryarka Ave",
     "lat":               _AST_LAT,
     "lon":               _AST_LON,
     "polygon":           _polygon_500m(_AST_LAT, _AST_LON),

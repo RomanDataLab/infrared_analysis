@@ -13,8 +13,8 @@
     "delta_utci_c": 0.183,
     "delta_kwh_m2_yr": 0.69,
     "stranded_rcp45": true,
-    "projected_utci_2050": 47.8,
-    "rcp45_discount_frac": 0.07
+    "projected_utci_2050": 48.2,
+    "rcp45_discount_frac": 0.088
   },
   "mecca": {
     "capex_usd": 200000,
@@ -30,8 +30,8 @@
     "delta_utci_c": 0.237,
     "delta_kwh_m2_yr": 0.89,
     "stranded_rcp45": true,
-    "projected_utci_2050": 49.1,
-    "rcp45_discount_frac": 0.118
+    "projected_utci_2050": 49.5,
+    "rcp45_discount_frac": 0.133
   },
   "almaty": {
     "capex_usd": 90000,
@@ -47,7 +47,7 @@
     "delta_utci_c": 0.414,
     "delta_kwh_m2_yr": 0.99,
     "stranded_rcp45": false,
-    "projected_utci_2050": 0.8,
+    "projected_utci_2050": 1.1,
     "rcp45_discount_frac": 0.0
   },
   "astana": {
@@ -64,7 +64,7 @@
     "delta_utci_c": 0.027,
     "delta_kwh_m2_yr": 0.08,
     "stranded_rcp45": false,
-    "projected_utci_2050": -26.3,
+    "projected_utci_2050": -26.0,
     "rcp45_discount_frac": 0.0
   }
 }

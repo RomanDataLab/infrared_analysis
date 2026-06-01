@@ -792,12 +792,42 @@ def export_site(site_key, size=500):
         if dropped:
             print(f"    dropped {dropped} slivers (< 10 m2)")
 
-    # Save
+    # Save frontend GeoJSON
     dst_dir.mkdir(parents=True, exist_ok=True)
     geojson = {"type": "FeatureCollection", "features": all_features}
     out_path = dst_dir / "trees.geojson"
     with open(out_path, "w") as f:
         json.dump(geojson, f)
+
+    # Save sim_vegetation.json — SDK-compatible Point features for simulation
+    # Each tree polygon -> centroid Point with height + crown_radius
+    sim_veg = {}
+    for i, feat in enumerate(all_features):
+        ring = feat["geometry"]["coordinates"][0]
+        cx = sum(p[0] for p in ring) / len(ring)
+        cy = sum(p[1] for p in ring) / len(ring)
+        # Estimate crown radius from polygon area
+        area_deg2 = abs(sum(
+            (ring[j][0] - ring[0][0]) * (ring[(j+1) % len(ring)][1] - ring[0][1]) -
+            (ring[(j+1) % len(ring)][0] - ring[0][0]) * (ring[j][1] - ring[0][1])
+            for j in range(len(ring))
+        ) / 2)
+        area_m2 = area_deg2 * (111_320 ** 2) * math.cos(math.radians(cy))
+        crown_r = max(2.0, min(20.0, math.sqrt(area_m2 / math.pi)))
+        # Use stored crown_radius for individual trees if available
+        props = feat.get("properties", {})
+        if props.get("crown_radius"):
+            crown_r = props["crown_radius"]
+        height = max(6.0, crown_r / HEIGHT_TO_CROWN) if props.get("kind") == "tree" else 8.0
+        sim_veg[f"tv_{i:04d}"] = {
+            "type": "Feature",
+            "geometry": {"type": "Point", "coordinates": [round(cx, 7), round(cy, 7)]},
+            "properties": {"height": round(height, 1), "crown_radius": round(crown_r, 1)},
+        }
+    sim_veg_path = src_dir / "sim_vegetation.json"
+    with open(sim_veg_path, "w") as f:
+        json.dump(sim_veg, f)
+    print(f"    saved {len(sim_veg)} SDK vegetation points -> {sim_veg_path.name}")
 
     n_osm = sum(1 for f in all_features if f["properties"]["source"] == "osm")
     n_gm  = sum(1 for f in all_features if f["properties"]["source"] == "ground")

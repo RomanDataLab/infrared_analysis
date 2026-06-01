@@ -28,7 +28,7 @@ const SITE_META = {
   riyadh: { label: 'Riyadh',  climate: 'hot',  flag: '🇸🇦', subtitle: 'Al-Murabba / Diriyah Gate' },
   mecca:  { label: 'Mecca',   climate: 'hot',  flag: '🕌', subtitle: 'Masjid al-Haram surrounds' },
   almaty: { label: 'Almaty',  climate: 'cold', flag: '🇰🇿', subtitle: 'Medeu / Dostyk Embassy Row' },
-  astana: { label: 'Astana',  climate: 'cold', flag: '🇰🇿', subtitle: 'Bayterek / Nurzhol Blvd' },
+  astana: { label: 'Astana',  climate: 'cold', flag: '🇰🇿', subtitle: 'Kenesary St / Saryarka Ave / Ishim River' },
 }
 
 const SCENARIO_LABELS = {
@@ -99,7 +99,7 @@ function SiteCard({ siteKey, data }) {
           <div className="fp-sub">{meta.subtitle}</div>
         </div>
         {stranded && (
-          <span className="fp-stranded" title="Site projected to exceed 46°C UTCI by 2050 under RCP 4.5">
+          <span className="fp-stranded" title="Stranded asset: projected outdoor thermal conditions (UTCI) exceed 46 °C by 2050 under RCP 4.5 warming. Outdoor spaces become economically unviable — property values face a mandatory discount (up to 25%). Renovation scenarios reduce current UTCI but cannot fully offset the 2050 trajectory.">
             ⚠ Stranded risk
           </span>
         )}
@@ -107,15 +107,15 @@ function SiteCard({ siteKey, data }) {
 
       {/* ROI hero */}
       <div className="fp-roi-row">
-        <div className="fp-roi-block">
+        <div className="fp-roi-block" title="Return on Investment over the full 25-year analysis horizon: (total value − capex) / capex × 100. Values above 100% mean the renovation pays back more than its cost over its lifetime. Hot-climate sites show higher ROI because climate risk avoided and demand premium layers are larger.">
           <div className="fp-roi-num">{fmtPct(roi_pct)}</div>
           <div className="fp-roi-label">ROI</div>
         </div>
-        <div className="fp-roi-block">
+        <div className="fp-roi-block" title="Net Present Value: total discounted value of all benefit layers (energy, hedonic, demand, climate risk) minus the upfront renovation cost (capex). Positive NPV = the project creates value. Discount rate: 8%.">
           <div className="fp-roi-num">{fmt$k(npv_usd)}</div>
           <div className="fp-roi-label">NPV</div>
         </div>
-        <div className="fp-roi-block">
+        <div className="fp-roi-block" title="Capital expenditure: upfront cost of the best renovation scenario (materials, labour, installation). Scales with intervention area and type — shade canopies (D) cost more than tree planting (A) or resurfacing (B).">
           <div className="fp-roi-num">{fmt$k(capex_usd)}</div>
           <div className="fp-roi-label">Capex</div>
         </div>
@@ -125,9 +125,9 @@ function SiteCard({ siteKey, data }) {
       <div className="fp-scenario-tag">
         Best: Scenario {scenario_key} — {SCENARIO_LABELS[scenario_key] ?? scenario_key}
         &nbsp;·&nbsp;
-        ΔUTCI {delta_utci_c >= 0 ? '+' : ''}{delta_utci_c?.toFixed(2)} °C
+        <span title="Change in outdoor thermal comfort (Universal Thermal Climate Index) from the best renovation scenario. Positive = warmer (good for cold sites), negative = cooler (good for hot sites). Drives HVAC energy savings and property value uplift.">ΔUTCI {delta_utci_c >= 0 ? '+' : ''}{delta_utci_c?.toFixed(2)} °C</span>
         &nbsp;·&nbsp;
-        {(floor_area_m2 / 1000).toFixed(0)}K m² GFA
+        <span title="Gross Floor Area of adjacent buildings that benefit from the outdoor microclimate improvement. UTCI improvement reduces HVAC loads on perimeter zones of these buildings, generating annual energy savings capitalised into asset value.">{(floor_area_m2 / 1000).toFixed(0)}K m² GFA</span>
       </div>
 
       {/* Value layers */}
@@ -138,28 +138,28 @@ function SiteCard({ siteKey, data }) {
           value={energyNpv}
           total={barTotal}
           color="#4caf50"
-          tooltip={`$${annual_energy_saving_usd.toFixed(0)}/yr utility saving · base intensity × UTCI elasticity`}
+          tooltip={`Net present value of annual HVAC energy savings over 25 years (8% discount rate). Each °C of UTCI improvement reduces heating/cooling loads by 2-2.5% on perimeter zones. Annual saving: $${annual_energy_saving_usd.toFixed(0)}/yr.`}
         />
         <LayerBar
           label="Hedonic uplift"
           value={hedonic_uplift_usd}
           total={barTotal}
           color="#2196f3"
-          tooltip="Property price premium from comfort-score improvement (literature prior)"
+          tooltip="Hedonic uplift: property price increase from better outdoor comfort. Based on real estate studies — neighborhoods with higher climate scores command higher $/m² (~$25/m² per 10-point improvement for hot climates, ~$13 for cold)."
         />
         <LayerBar
           label="Demand premium"
           value={demand_premium_usd}
           total={barTotal}
           color="#9c27b0"
-          tooltip="Capitalised rental yield gain from improved demand signals (DOM, search velocity)"
+          tooltip="Demand premium: capitalised rental yield gain from improved market signals — shorter days-on-market (DOM), higher search velocity, and lower vacancy. Uses default market assumptions (5% cap rate, 3% rental uplift per comfort tier). This layer is often the largest because even modest rental gains capitalise into large asset values at low cap rates. Calibrate with local listing data for accuracy."
         />
         <LayerBar
           label="Climate risk avoided"
           value={climate_risk_avoided_usd}
           total={barTotal}
           color={stranded ? '#f44336' : '#ff9800'}
-          tooltip={`Asset value preserved vs. unmitigated stranded-risk discount under RCP 4.5 (UTCI 2050: ${projected_utci_2050} °C)`}
+          tooltip={`Climate risk avoided: asset value preserved by renovating now vs. doing nothing. Under RCP 4.5 warming, outdoor UTCI is projected to reach ${projected_utci_2050} °C by 2050. Properties in locations exceeding 46 °C face mandatory valuation discounts (up to 25%) as outdoor spaces become unusable. This layer measures how much of that future discount is avoided by improving the microclimate today.`}
         />
       </div>
 

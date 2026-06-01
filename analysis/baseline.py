@@ -144,16 +144,74 @@ def legend_bounds(result, grid):
 
 
 def load_cached(out_dir):
-    """Load buildings, vegetation, ground_materials, weather UUID from cached fetched_data.json."""
+    """Load buildings, vegetation, ground_materials, weather UUID from cached data.
+
+    Buildings are filtered to merged_ids.json (deduped across OSM/Overture/MS)
+    if available. Vegetation uses sim_vegetation.json (tree canopy -> SDK points)
+    if available, falling back to raw SDK vegetation.
+    """
     with open(out_dir / "fetched_data.json") as f:
         data = json.load(f)
     buildings = {k: DotBimMesh(**v) for k, v in data["buildings"].items()}
-    veg_raw = data["vegetation"]
-    vegetation = veg_raw if (veg_raw and len(veg_raw) >= 10) else None
+
+    # Filter to deduped building set if merged_ids.json exists
+    ids_path = out_dir / "merged_ids.json"
+    if ids_path.exists():
+        with open(ids_path) as f:
+            merged_ids = set(json.load(f))
+        before = len(buildings)
+        buildings = {k: v for k, v in buildings.items() if k in merged_ids}
+        print(f"      filtered buildings: {before} -> {len(buildings)} (merged_ids.json)")
+
+    # Prefer tree canopy vegetation (sim_vegetation.json) over raw SDK veg
+    sim_veg_path = out_dir / "sim_vegetation.json"
+    if sim_veg_path.exists():
+        with open(sim_veg_path) as f:
+            vegetation = json.load(f)
+        if len(vegetation) >= 10:
+            print(f"      vegetation: {len(vegetation)} tree canopy points (sim_vegetation.json)")
+        else:
+            vegetation = None
+            print(f"      vegetation: sim_vegetation.json has < 10 features, using None")
+    else:
+        veg_raw = data["vegetation"]
+        vegetation = veg_raw if (veg_raw and len(veg_raw) >= 10) else None
+
     ground_materials = {k: v for k, v in data["ground_materials"].items()
                         if k in VALID_MATERIALS}
     station_id = data.get("weather_station_uuid")
     return buildings, vegetation, ground_materials, station_id
+
+
+def _reframe_buildings(buildings, ctx_half_m, analysis_half_m):
+    """Translate building coordinates to analysis-polygon-SW frame.
+
+    Buildings come from three sources in different coordinate frames:
+      OSM      — context polygon frame (origin at center - ctx_half)
+      Overture — 500m analysis polygon frame (origin at center - 250)
+      MS       — 500m analysis polygon frame (origin at center - 250)
+
+    The SDK expects all buildings in analysis-polygon-SW frame
+    (origin at center - analysis_half).
+    """
+    osm_offset = ctx_half_m - analysis_half_m        # e.g. 1000 - 500 = 500
+    enrich_offset = 250.0 - analysis_half_m          # e.g. 250 - 500 = -250
+
+    reframed = {}
+    for bid, mesh in buildings.items():
+        is_enriched = bid.startswith(("ov_", "ms_"))
+        offset = enrich_offset if is_enriched else osm_offset
+        if abs(offset) < 0.1:
+            reframed[bid] = mesh
+            continue
+        d = mesh.model_dump()
+        coords = list(d["coordinates"])
+        for i in range(0, len(coords), 3):
+            coords[i]     -= offset   # x (east)
+            coords[i + 1] -= offset   # y (north)
+        d["coordinates"] = coords
+        reframed[bid] = DotBimMesh(**d)
+    return reframed
 
 
 def cache_fetched(out_dir, buildings, area_veg, layers, overture_checked: bool = False):
@@ -173,6 +231,7 @@ def cache_fetched(out_dir, buildings, area_veg, layers, overture_checked: bool =
         "vegetation":       area_veg.features,
         "ground_materials": layers,
         "overture_checked": overture_checked,
+        "context_size_m":   getattr(cache_fetched, '_ctx_size', None),
     }
     with open(out_dir / "fetched_data.json", "w") as f:
         json.dump(cache, f)
@@ -213,10 +272,41 @@ def main(site_key, size=500, cached=False, buffer_m=None):
     tp_utci  = TimePeriod(start_month=um, start_day=1,  start_hour=uh_s,
                           end_month=um,   end_day=days_in_month[um], end_hour=uh_e)
 
-    ctx_label = f"{int(size + 2 * (buffer_m or 500))} m" if buffer_m else ("1.5 km" if size == 500 else "2 km")
+    # Compute context size for coordinate reframing.
+    # When using cached data, the buildings were fetched with whatever context
+    # was active at fetch time.  Infer from fetched_data.json if available;
+    # otherwise use the default for this size.
+    analysis_half = size / 2
+    if cached:
+        # Infer original context from building coordinate extents
+        import math as _m
+        _fd = out / "fetched_data.json"
+        if _fd.exists():
+            with open(_fd) as _f:
+                _fd_data = json.load(_f)
+            _ctx_stored = _fd_data.get("context_size_m")
+            if _ctx_stored:
+                ctx_size_m = _ctx_stored
+            else:
+                # Default: 1km analysis used 2000m context, 500m used 1500m
+                ctx_size_m = 2000 if size == 1000 else 1500
+        else:
+            ctx_size_m = 2000 if size == 1000 else 1500
+    else:
+        if buffer_m == 200 and size == 1000:
+            ctx_size_m = 1400
+        elif size == 1000:
+            ctx_size_m = 2000
+        else:
+            ctx_size_m = 1500
+    ctx_half = ctx_size_m / 2
+
+    ctx_label = f"{ctx_size_m} m"
     print(f"\n=== {site['name']} ===")
     print(f"      analysis polygon : {size} m")
     print(f"      context polygon  : {ctx_label}  (buildings + vegetation fetch)")
+    if ctx_half != analysis_half:
+        print(f"      frame offset     : {ctx_half - analysis_half:.0f} m (context -> analysis)")
     if cached:
         print(f"      mode             : CACHED (loading from fetched_data.json)")
 
@@ -285,6 +375,13 @@ def main(site_key, size=500, cached=False, buffer_m=None):
 
             cache_fetched(out, enriched_buildings, area_veg, layers,
                           overture_checked=_overture_attempted)
+
+        # -- Reframe buildings from context-polygon to analysis-polygon frame --
+        if ctx_half != analysis_half:
+            enriched_buildings = _reframe_buildings(
+                enriched_buildings, ctx_half, analysis_half)
+            print(f"      reframed {len(enriched_buildings)} buildings "
+                  f"by -{ctx_half - analysis_half:.0f} m (context -> analysis frame)")
 
         # -- Weather station (non-fatal — UUID cached for later UTCI re-runs) --
         weather    = None

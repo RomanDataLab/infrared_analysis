@@ -199,33 +199,35 @@ function ProjectModal({ onClose }) {
 
           <div className="pm-location">
             <div className="pm-location-head">
-              <span className="pm-location-name">Northern Government Quarter · Astana</span>
+              <span className="pm-location-name">Kenesary–Saryarka · Astana</span>
               <span className="pm-location-meta">51.160 °N · 71.407 °E · steppe cold · Grade D · score 58.1</span>
             </div>
             <p className="pm-p">
-              The northern precinct of Astana's Left Bank — the first phase of Kisho
-              Kurokawa's master plan, built 1999–2007 — is a dense block of state
-              ministries, national agencies, and government-service buildings flanking
-              the wide arterial grid that connects the Presidential Palace axis to the
-              city's northern ring. Unlike the ceremonial Nurzhol spine, this district
-              is built for administrative function rather than civic display: ministry
-              campuses occupy full city blocks, ground-floor retail is sparse, and the
-              pedestrian realm serves as a bare wind-swept corridor rather than usable
-              public space. Land values reach USD 1 000–1 400/m² due to locational
-              premium and enforced state ownership, and demand from private developers
-              converting ageing early-2000s office stock into mixed-use towers is
-              intensifying — a form of institutional gentrification that is progressively
-              enclosing the open plazas that once provided passive thermal buffering.
-              All land is state-owned, removing any private acquisition barrier and
-              enabling sovereign-speed procurement of thermal interventions — a
-              structural advantage absent at every other study site. The Astana City
-              Development Corporation's 2023–2027 renewal budget targets this northern
-              precinct for streetscape overhaul, yet no wind-speed or UTCI performance
-              metric appears in any tender specification. At 51.16 °N on featureless
-              steppe — the widest and most exposed north–south avenue corridors on the
-              Left Bank — prevailing northerlies of 10–14 m/s produce a mean daytime
-              January UTCI of −28.2 °C, placing 100 % of the analysis area in extreme
-              cold stress for four consecutive winter months every year.
+              The junction of Kenesary Street and Saryarka Avenue marks the commercial
+              spine of Astana's Right Bank — the older, denser half of the capital that
+              predates Kurokawa's Left Bank master plan. Kenesary Street (1.8 km,
+              running NE–SW from the railway station to the Ishim River embankment)
+              is the city's busiest pedestrian corridor: ground-floor retail, banking
+              headquarters, mid-rise hotels, and the Central Bazaar cluster concentrate
+              the highest foot-traffic density in the capital. Saryarka Avenue crosses
+              it at grade, forming a four-lane arterial lined with Soviet-era 5–9 storey
+              residential blocks now undergoing rapid conversion to mixed-use towers
+              with glazed curtain walls — replacing the deep courtyard typology that
+              once buffered pedestrians from the steppe wind. Land values along
+              Kenesary reach USD 1 200–2 000/m², second only to the Nurzhol ceremonial
+              axis on the Left Bank, and rising 8–12 % annually as developers
+              densify the corridor ahead of the planned Astana LRT line. The Ishim
+              River embankment (200 m south of the analysis polygon) is the only
+              significant green infrastructure in the district — a 40 m-wide parkway
+              of poplar and birch that provides measurable wind shelter and evaporative
+              cooling in summer, but whose benefit dissipates within two blocks of the
+              riverbank. At 51.16 °N on featureless steppe, prevailing northerlies of
+              10–14 m/s funnel unimpeded down the wide avenue corridors; mean daytime
+              January UTCI drops to −28.2 °C, placing 100 % of the analysis area in
+              extreme cold stress for four consecutive winter months every year. The
+              Astana City Development Corporation's 2023–2027 renewal budget targets
+              Kenesary for full streetscape overhaul, yet no wind-speed or UTCI
+              performance metric appears in any tender specification.
             </p>
           </div>
         </section>
@@ -234,12 +236,33 @@ function ProjectModal({ onClose }) {
         <section id="pm-method" className="pm-section">
           <h2 className="pm-h2">Methodology</h2>
           <ol className="pm-ol">
-            <li><strong>Site definition</strong> — 500 × 500 m analysis polygon centred on each
-              study point; 1 500 × 1 500 m context polygon for building and vegetation fetch
-              (CFD best-practice: domain ≥ 3× analysis width).</li>
-            <li><strong>Data fetch</strong> — Buildings, trees and ground-material layers retrieved
-              from the Infrared API (backed by OpenStreetMap). Sparse vegetation (&lt; 10 trees)
-              defers to the API's internal dataset to avoid skewing the simulation.</li>
+            <li><strong>Site definition</strong> — Two analysis scales: 500 × 500 m (study area)
+              and 1 000 × 1 000 m (district zone), each with a context polygon sized for
+              CFD best-practice (domain ≥ 3× analysis width — 1 500 m and 2 000 m respectively,
+              with 200 m buffer on the 1 km scale).</li>
+            <li><strong>Data fetch — multi-source buildings</strong> — The Infrared SDK's
+              built-in building layer (OpenStreetMap) has insufficient coverage in Central and
+              West Asia — many buildings are missing or have no height data. To close this gap
+              we fetch from <strong>three sources</strong>:
+              <ul className="pm-ul">
+                <li><strong>OSM</strong> (via SDK) — primary source, good street-level detail
+                  in urban cores but sparse in newer districts.</li>
+                <li><strong>Overture Maps</strong> — merged from OSM + Microsoft ML footprints +
+                  Google Open Buildings; provides footprints the SDK misses, especially in
+                  suburban and peri-urban zones.</li>
+                <li><strong>Microsoft Building Footprints</strong> — ML-derived from satellite
+                  imagery, high recall for smaller structures absent from both OSM and Overture.</li>
+              </ul>
+              All three sources are spatially merged: overlapping footprints are de-duplicated
+              by IoU and containment analysis, producing a single consolidated building set per
+              site (<code>merged_ids.json</code>). Heights default to 12 m where metadata is
+              unavailable. Buildings are converted to 3D mesh (DotBimMesh) in the SDK's
+              local-metre coordinate frame with per-source reframing to align OSM, Overture
+              and MS origins to the analysis polygon centre.</li>
+            <li><strong>Vegetation</strong> — Tree canopy polygons are fetched from Overture Maps,
+              converted to SDK-compatible Point features with estimated height and crown radius
+              (derived from canopy area). Sparse vegetation (&lt; 10 trees) defers to the
+              API's internal dataset to avoid skewing the simulation.</li>
             <li><strong>Weather</strong> — Nearest TMYx station (EnergyPlus format,
               2009–2023 average) matched by geographic search radius.</li>
             <li><strong>Baseline simulations</strong> — Three analyses per site at 512 × 512

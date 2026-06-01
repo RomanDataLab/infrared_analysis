@@ -205,7 +205,7 @@ export default function ScoreCard({ item, finance = null, onClose }) {
                     <span className="sc-dot">&#x2022;</span>
                     <span className="sc-fin-val">Capex {fmtMoney(finance.capex_usd)}</span>
                     {finance.stranded_rcp45 && (
-                      <span className="sc-fin-stranded">&#x26a0; Stranded 2050</span>
+                      <span className="sc-fin-stranded" title="Stranded asset: projected outdoor thermal conditions (UTCI) exceed 46 °C by 2050 under RCP 4.5 warming. Outdoor spaces become economically unviable — property values face a mandatory discount (up to 25%). Renovation scenarios reduce current UTCI but cannot fully offset the 2050 trajectory.">&#x26a0; Stranded 2050</span>
                     )}
                   </div>
                 )}
