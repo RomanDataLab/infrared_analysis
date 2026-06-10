@@ -1,6 +1,6 @@
 # RenovationMap — Project Graph
-> Last updated: 2026-05-30  
-> Status: Active development · Infrared API outage in progress (Astana re-run pending)
+> Last updated: 2026-06-01
+> Status: Active development · All simulations complete (500 m + 1 km)
 
 ---
 
@@ -40,7 +40,7 @@ The four study neighbourhoods were chosen at the intersection of **highest real-
 | Current grade | **F — Critical** (score 80.3 / 100) |
 | Baseline UTCI | 46.79 °C mean daytime |
 | Best intervention | 200 m canopy shade structure (Scenario D) |
-| NPV / ROI | USD 1.33 M / **741 %** |
+| NPV / ROI | USD 967 K / **537 %** |
 | Stranded 2050 | Yes — projected UTCI 48 °C under RCP 4.5 |
 
 Historic royal district anchored by Al-Murabba Palace (1936). Borders the Diriyah Gate Development Authority (DGDA) zone — USD 50 bn UNESCO heritage-tourism megaproject. Land values 40–60 % above Riyadh average. State program: Riyadh DA "Historical Gateway District" designation, upgrades in procurement with no thermal KPI.
@@ -56,8 +56,8 @@ Historic royal district anchored by Al-Murabba Palace (1936). Borders the Diriya
 | Current grade | **F — Critical** (score 84.8 / 100) |
 | Baseline UTCI | 47.41 °C mean daytime |
 | Best intervention | 200 m canopy shade structure (Scenario D) |
-| NPV / ROI | USD 2.25 M / **1 126 %** |
-| Stranded 2050 | Yes — projected UTCI 48 °C under RCP 4.5 |
+| NPV / ROI | USD 1.04 M / **520 %** |
+| Stranded 2050 | Yes — projected UTCI 48.7 °C under RCP 4.5 |
 
 Most visited site on Earth (~3 M pilgrims/week Hajj, ~8 M/month Umrah). Land above USD 40 000/m². Grand Mosque Expansion Project (2020–2030) demolishing ~1 block/year with no thermal modelling requirement. Abraj Al-Bait complex (601 m) creates wind shadow eliminating natural ventilation.
 
@@ -72,37 +72,52 @@ Most visited site on Earth (~3 M pilgrims/week Hajj, ~8 M/month Umrah). Land abo
 | Current grade | **A — Good** (score 4.0 / 100) |
 | Baseline UTCI | −0.89 °C mean daytime |
 | Best intervention | Asphalt → grass courtyard surface (Scenario B) |
-| NPV / ROI | USD 79.7 K / **89 %** |
+| NPV / ROI | USD 80 K / **89 %** |
 | Stranded 2050 | No |
 
 Most prestigious commercial address in Central Asia. Residential land USD 3 000–5 500/m². Soviet passive-thermal grammar (wide boulevard + shaded courtyard + mature linden/poplar rows) being systematically dismantled by luxury infill since 2015. State program: "Comfortable City" master plan KZT 150 bn, 2022–2028.
 
 ---
 
-### 3.4 Bayterek / Nurzhol Boulevard · Astana
+### 3.4 Kenesary–Saryarka · Astana
 | Field | Value |
 |-------|-------|
-| Coordinates | 51.128 °N, 71.430 °E *(corrected 2026-05-29 — prior run was ~3.6 km north of Bayterek)* |
+| Coordinates | 51.160 °N, 71.407 °E |
 | Climate | Steppe cold |
 | Analysis month | January (UTCI), December (solar), steppe N-wind 12 m/s |
-| Current grade | **D — Poor** (score 58.9) *(from prior incorrect coordinates — re-run pending)* |
-| Baseline UTCI | −28.13 °C *(prior coords — figure will update on re-run)* |
-| Best intervention | Asphalt → grass courtyard surface (Scenario B) *(prior coords)* |
-| NPV / ROI | USD 75.3 K / **63 %** *(prior coords)* |
+| Current grade | **D — Poor** (score 57.7) |
+| Baseline UTCI | −28.15 °C mean daytime |
+| Best intervention | Asphalt → grass courtyard surface (Scenario B) |
+| NPV / ROI | USD 76 K / **63 %** |
 | Stranded 2050 | No |
 
-Ceremonial spine of Kazakhstan's purpose-built capital (Nurzhol Blvd, master-planned by Kisho Kurokawa, complete ~2006). Entire corridor state-owned — no acquisition barriers. Mean January air temp −17 °C, northerlies 10–14 m/s. State program: Astana City Development Corporation 2023–2027 renewal (marble paving + lighting only, no thermal KPI).
+Junction of Kenesary Street and Saryarka Avenue — the commercial spine of Astana's Right Bank. Kenesary Street (1.8 km, NE–SW from railway station to Ishim River embankment) is the city's busiest pedestrian corridor: ground-floor retail, banking headquarters, mid-rise hotels, Central Bazaar cluster. Land values USD 1 200–2 000/m², rising 8–12 % annually ahead of the planned Astana LRT line. The Ishim River embankment (200 m south) provides the only significant green infrastructure in the district. State program: Astana City Development Corporation 2023–2027 renewal targeting Kenesary streetscape overhaul, no wind-speed or UTCI KPI in tender specs.
 
 ---
 
 ## 4. Methodology
 
 ```
-Site polygon (500 m × 500 m)
-  └─ Context polygon (1 500 m × 1 500 m)
-        ├─ Buildings fetch   (OSM via Infrared API + Overture Maps + Microsoft ML)
-        ├─ Vegetation fetch  (OSM; < 10 trees → defer to API internal dataset)
-        └─ Ground materials  (Mapbox source; fallback: skip if API 500)
+Site polygons
+  ├─ 500 × 500 m   study area (core public space)
+  │    └─ Context polygon: 1 500 × 1 500 m
+  └─ 1 000 × 1 000 m  analysis zone (district impact)
+       └─ Context polygon: 1 400 m (1 km + 200 m buffer each side)
+
+Data fetch — multi-source buildings
+  ├─ OSM          (via Infrared SDK)  — primary source, good urban cores
+  ├─ Overture Maps (via DuckDB)       — OSM + MS ML + Google Open Buildings
+  └─ MS Building Footprints           — ML-derived from satellite imagery
+        │
+        └─ Spatial merge: IoU ≥ 0.10 dedup + containment removal
+           → unified building set per site (merged_ids.json)
+           → per-source coordinate reframing to analysis polygon centre
+
+Vegetation — multi-source
+  ├─ SDK vegetation (OSM tree points + ground cover zones)
+  └─ Overture Maps tree canopy polygons
+        → SDK-compatible Point features with height + crown_radius
+        → sim_vegetation.json per site
 
 Weather station
   └─ Nearest TMYx (EnergyPlus format, 2009-2023 average)
@@ -110,7 +125,7 @@ Weather station
 
 Baseline simulations  (512 × 512 grid, ~1 m/px)
   ├─ Wind speed       CFD, directional-blend merge, prevailing seasonal wind
-  ├─ Direct sun hours Geometry raycast, worst-case month
+  ├─ Direct sun hours  Geometry raycast, worst-case month
   └─ UTCI             Coupled radiation + convection + humidity, worst month
 
 Scenario simulations  (re-run wind + UTCI with modified inputs)
@@ -127,7 +142,7 @@ Scoring  (0–100 composite, three climate-specific metrics)
 Financial model  (25-year NPV, 8 % discount)
   ├─ Energy savings     ~2.5 % per °C UTCI improvement × local tariff
   ├─ Hedonic uplift     3–8 % property premium within 200 m
-  ├─ Demand premium     5 % F&B / retail turnover uplift
+  ├─ Demand premium     5 % F&B / retail turnover uplift (5 % cap rate)
   └─ Climate risk       stranded-asset NPV (RCP 4.5, 15 % annual haircut)
 ```
 
@@ -138,22 +153,21 @@ API grid bounds are tile-snapped and can differ from the analytical polygon by 1
 
 The Infrared SDK, Overture enrichment, and Microsoft enrichment each store
 building mesh vertices in local metres, but relative to **different origins**.
-Exporting to WGS 84 GeoJSON requires using the correct origin per source:
+The simulation expects all buildings in analysis-polygon-SW frame. Per-source
+reframing is applied before each run:
 
 ```
-Source              Origin (SW corner of)        Formula
+Source              Origin (SW corner of)        Reframe offset
 ──────────────────  ──────────────────────────── ─────────────────────────────
-SDK / OSM           Context polygon              _analysis_sw(lat, lon, ctx_size)
-                      500 m analysis → 1 500 m     ctx_size = 1500
-                      1 km  analysis → 2 000 m     ctx_size = 2000
+SDK / OSM           Context polygon              ctx_half - analysis_half
+                      500 m analysis → 1 500 m     offset = 500 m
+                      1 km  analysis → 2 000 m     offset = 500 m
 
-Overture (ov_*)     500 m analysis polygon       _analysis_sw(lat, lon, 500)
-                    (always, regardless of        fetch_overture.py hardcodes
-                     analysis size)                half = 250 m
+Overture (ov_*)     500 m analysis polygon       250 - analysis_half
+                    (fetch_overture.py)            500 m: 0 m  |  1 km: -250 m
 
-MS Buildings (ms_*) 500 m analysis polygon       _analysis_sw(lat, lon, 500)
-                    (same as Overture)            fetch_ms_buildings.py uses
-                                                  same origin convention
+MS Buildings (ms_*) 500 m analysis polygon       250 - analysis_half
+                    (fetch_ms_buildings.py)        500 m: 0 m  |  1 km: -250 m
 ```
 
 `_analysis_sw(lat_c, lon_c, size)` returns the SW corner of a square polygon
@@ -230,6 +244,8 @@ Algorithm:
   4. Save per-source GeoJSON (buildings_osm / _overture / _ms.geojson)
      for rollback capability
   5. Output accepted features as unified buildings.geojson
+  6. Save merged_ids.json → used by baseline.py to filter fetched_data
+     buildings so that simulation uses exactly the same set shown on the map
 
 Grid cell size: 0.0005° (~55 m) — balances lookup speed vs memory
 IoU threshold: 0.10 — tuned to eliminate all visible overlaps
@@ -293,15 +309,37 @@ Typical results (Almaty 1 km):
 
 Script: `analysis/export_trees_geojson.py`
 
+### Simulation–map alignment
+
+To ensure heatmap pixels align with building outlines on the map:
+1. `merged_ids.json` from the export pipeline filters `fetched_data.json`
+   buildings so the simulation uses exactly the deduped set shown under "Bldg"
+2. `sim_vegetation.json` converts tree canopy polygons to SDK Point features
+   so the simulation uses the same trees shown under "Trees"
+3. Per-source coordinate reframing (`_reframe_buildings()` in baseline.py)
+   translates OSM, Overture, and MS buildings to the analysis polygon frame
+
 ### Output files per site
 
 ```
+analysis/results/{site}[/1km]/
+  ├─ fetched_data.json            ← cached API response (buildings, veg, ground, station UUID)
+  ├─ merged_ids.json              ← building IDs that passed spatial dedup
+  ├─ sim_vegetation.json          ← SDK-compatible tree Point features for simulation
+  ├─ baseline_stats.json          ← wind/sun/utci summary statistics
+  ├─ baseline_bounds.json         ← tile-snapped grid extents for map overlay
+  ├─ baseline_*.npy               ← raw 512×512 grids
+  └─ baseline_*.png               ← heatmap images
+
 public/heatmaps/{site}[/1km]/
-  ├─ buildings.geojson           ← merged (served to frontend)
-  ├─ buildings_osm.geojson       ← OSM only (pre-merge, for rollback)
-  ├─ buildings_overture.geojson  ← Overture only
-  ├─ buildings_ms.geojson        ← Microsoft only
-  └─ trees.geojson               ← tree canopies + vegetation zones
+  ├─ buildings.geojson             ← merged (served to frontend)
+  ├─ buildings_osm.geojson         ← OSM only (pre-merge, for rollback)
+  ├─ buildings_overture.geojson    ← Overture only
+  ├─ buildings_ms.geojson          ← Microsoft only
+  ├─ trees.geojson                 ← tree canopies + vegetation zones
+  ├─ baseline_wind.png / _overlay.png
+  ├─ baseline_sun.png / _overlay.png
+  └─ baseline_utci.png / _overlay.png
 ```
 
 ---
@@ -311,11 +349,12 @@ public/heatmaps/{site}[/1km]/
 | Source | Used for | Notes |
 |--------|----------|-------|
 | **Infrared City API v2** | Wind CFD, solar raycast, UTCI simulation, building fetch, vegetation fetch, ground materials, weather station | Core compute engine |
-| **OpenStreetMap** (via Infrared) | Building footprints, tree positions, ground cover | Primary building dataset |
-| **Overture Maps** (via `fetch_overture.py`) | Additional building footprints not in OSM | Enrichment layer; adds ~57 % more buildings for Riyadh |
-| **Microsoft Building Footprints** (via `fetch_ms_buildings.py`) | ML-derived building footprints from Bing imagery | 1.4 B buildings globally; CDLA Permissive 2.0 license |
+| **OpenStreetMap** (via Infrared) | Building footprints, tree positions, ground cover | Primary building dataset — insufficient coverage in Central/West Asia |
+| **Overture Maps** (via `fetch_overture.py`) | Additional building footprints not in OSM | Merged from OSM + Microsoft ML + Google Open Buildings; adds ~57 % more buildings for Riyadh |
+| **Microsoft Building Footprints** (via `fetch_ms_buildings.py`) | ML-derived building footprints from Bing imagery | 1.4 B buildings globally; high recall for smaller structures; CDLA Permissive 2.0 license |
+| **Overture Maps vegetation** | Tree canopy polygons for frontend + simulation | Converted to SDK Point features with height/crown_radius |
 | **EnergyPlus TMYx 2009-2023** (via Infrared weather API) | UTCI weather data per site | KAZ_AKM_Astana.351880, SAU stations for Riyadh/Mecca |
-| **Mapbox** (via Infrared ground-material API) | Asphalt / concrete / grass / soil / water layers | Currently returning HTTP 500 — fallback: skip |
+| **Mapbox Satellite** | Basemap tiles | Token via `VITE_MAPBOX_TOKEN` env var |
 | **Donovan & Butry (2010)** | Hedonic uplift coefficient — trees to property value | Ref [3] |
 | **Sander et al. (2010)** | Hedonic uplift — urban greenery | Ref [4] |
 | **Bowler et al. (2010)** | Urban cooling effect of trees | Ref [5] |
@@ -331,33 +370,35 @@ public/heatmaps/{site}[/1km]/
 |------|------|
 | **React 18** | Single-page app framework |
 | **Leaflet + react-leaflet** | Interactive satellite maps, `imageOverlay` for heatmaps |
+| **Mapbox Satellite v9** | Basemap tiles (best OSM alignment for Middle East / Central Asia) |
 | **Vite** | Build + dev server |
-| **CSS (custom)** | Dark UI, 2 × 2 grid layout, project modal |
+| **CSS (custom)** | Dark UI, 2 × 2 grid layout, project modal, financial panel |
 
 ### Python Pipeline
 | Script | Role |
 |--------|------|
-| `sites.py` | Site definitions — polygons, weather params, scenario configs |
-| `baseline.py` | Steps 1–6: fetch data → run wind/solar/UTCI → save stats + heatmaps |
+| `sites.py` | Site definitions — polygons (500 m + 1 km), weather params, scenario configs |
+| `baseline.py` | Steps 1–6: fetch data → run wind/solar/UTCI → save stats + heatmaps. Supports `--cached` (skip API fetch) and `--buffer` (context buffer size) flags |
 | `scenarios.py` | Re-run wind + UTCI for scenarios A / B / C per site |
 | `canopy_scenario.py` | Scenario D — 200 × 200 m flat-roof shade canopy (hot sites) |
 | `score.py` | Composite 0–100 score + grade from baseline + scenario stats |
 | `export_web.py` | Bundle all results into `public/renovation_data.json` + `financial_data.json` |
 | `fetch_overture.py` | Enrich OSM buildings with Overture Maps via DuckDB spatial join |
 | `fetch_ms_buildings.py` | Enrich with Microsoft Global ML Building Footprints (1.4 B worldwide) |
-| `export_buildings_geojson.py` | Convert DotBimMesh → WGS 84 GeoJSON for frontend building overlay |
+| `export_buildings_geojson.py` | Convert DotBimMesh → WGS 84 GeoJSON, spatial merge, save `merged_ids.json` |
+| `export_trees_geojson.py` | Tree canopy pipeline (OSM + ground veg + Overture), save `sim_vegetation.json` |
 | `climate_financial_model.py` | Four-layer NPV / ROI model |
-| `generate_financial_data.py` | Write `financial_data.json` from model outputs |
+| `generate_financial_data.py` | Write `financial_data.json` / `financial_data_1km.json` from model outputs |
 | `batch.py` | Run full pipeline for all sites sequentially |
 | `refine.py` | Detect stale results and trigger selective re-runs |
 | `regen_overlays.py` | Regenerate PNG overlays from cached `.npy` grids without API calls |
-| `postprocess_ndvi.py` | Convert NDVI-derived canopy points to `ndvi_trees.json` |
 
 ### External Services
 | Service | Purpose |
 |---------|---------|
 | **Infrared City API** (https://api.infrared.city/v2) | All simulation compute |
-| **Overture Maps** (DuckDB spatial query) | Building enrichment |
+| **Overture Maps** (DuckDB spatial query) | Building + vegetation enrichment |
+| **Microsoft Building Footprints** (Azure blob) | ML-derived footprints |
 
 ---
 
@@ -366,41 +407,47 @@ public/heatmaps/{site}[/1km]/
 ```
 infrared/
 ├── src/                          # React frontend
-│   ├── App.jsx                   # Root: 2×2 grid, toolbar, modals
+│   ├── App.jsx                   # Root: 2×2 grid, toolbar, modals, project idea
 │   ├── App.css                   # All styles
 │   └── components/
-│       ├── CityMap.jsx           # Leaflet map + heatmap overlay + scenario pins
-│       └── FinancialPanel.jsx    # NPV / ROI strip per site
+│       ├── CityMap.jsx           # Leaflet map + heatmap overlay + building/tree layers
+│       ├── ScoreCard.jsx         # Per-site score card (grade, components, interventions)
+│       └── FinancialPanel.jsx    # NPV / ROI panel with value layer breakdown
 │
 ├── public/
 │   ├── renovation_data.json      # All simulation results + metadata (generated)
-│   ├── financial_data.json       # NPV / ROI per site (generated)
+│   ├── financial_data.json       # NPV / ROI per site — 500 m (generated)
+│   ├── financial_data_1km.json   # NPV / ROI per site — 1 km (generated)
 │   └── heatmaps/
-│       ├── riyadh/               # baseline_wind/sun/utci + scenario overlays
-│       ├── mecca/
-│       ├── almaty/
-│       └── astana/
+│       ├── riyadh/[1km/]         # baseline_wind/sun/utci + overlays + buildings + trees
+│       ├── mecca/[1km/]
+│       ├── almaty/[1km/]
+│       └── astana/[1km/]
 │
 ├── analysis/                     # Python pipeline
-│   ├── sites.py                  # Site config (polygons, weather, scenarios)
-│   ├── baseline.py               # Step 1: data fetch + 3 baseline analyses
+│   ├── sites.py                  # Site config (500 m + 1 km polygons, weather, scenarios)
+│   ├── baseline.py               # Step 1: data fetch + 3 baseline analyses (--cached, --buffer)
 │   ├── scenarios.py              # Step 2: scenario A/B/C simulations
 │   ├── canopy_scenario.py        # Step 2b: scenario D (canopy, hot sites)
 │   ├── score.py                  # Step 3: scoring + grades
 │   ├── export_web.py             # Step 4: bundle to public/
-│   ├── fetch_overture.py         # Building enrichment helper
+│   ├── fetch_overture.py         # Building enrichment (Overture Maps)
+│   ├── fetch_ms_buildings.py     # Building enrichment (Microsoft ML)
+│   ├── export_buildings_geojson.py  # DotBimMesh → GeoJSON + spatial merge
+│   ├── export_trees_geojson.py   # Tree canopy → GeoJSON + sim_vegetation.json
 │   ├── climate_financial_model.py
 │   ├── generate_financial_data.py
 │   ├── batch.py
 │   ├── refine.py
 │   ├── regen_overlays.py
-│   ├── postprocess_ndvi.py
+│   ├── cache/                    # Cached Overture/MS/road data
 │   └── results/
-│       ├── riyadh/               # baseline_stats.json, scenarios_summary.json,
-│       ├── mecca/                #   courtyard_score.json, fetched_data.json,
-│       ├── almaty/               #   baseline_bounds.json, *.npy grids, *.png
-│       └── astana/
+│       ├── riyadh/[1km/]         # baseline_stats.json, merged_ids.json, sim_vegetation.json,
+│       ├── mecca/[1km/]          #   fetched_data.json, baseline_bounds.json, *.npy, *.png
+│       ├── almaty/[1km/]
+│       └── astana/[1km/]
 │
+├── .env                          # VITE_MAPBOX_TOKEN, INFRARED_API_KEY (gitignored)
 └── graph.md                      # This file
 ```
 
@@ -415,6 +462,15 @@ baseline.py --> results/{site}/fetched_data.json   (buildings, veg, ground mats;
             --> results/{site}/baseline_bounds.json (tile-snapped extents)
             --> results/{site}/baseline_stats.json
   |
+  v                                ┌─ merged_ids.json (building filter)
+fetch_overture.py ─┐               │
+fetch_ms_buildings ┤               │
+export_buildings ──┴──> buildings.geojson ──> merged_ids.json
+export_trees ─────────> trees.geojson ──────> sim_vegetation.json
+                                   │
+                                   └─ baseline.py --cached reads these
+                                      to align simulation with map layers
+  |
   v
 scenarios.py      --> results/{site}/scenario_*_utci/wind.npy + .png
 canopy_scenario.py (hot sites)
@@ -424,9 +480,9 @@ canopy_scenario.py (hot sites)
 score.py --> results/{site}/courtyard_score.json
   |
   v
-export_web.py          --> public/renovation_data.json
-generate_financial_data.py --> public/financial_data.json
-                       --> public/heatmaps/{site}/*.png
+export_web.py              --> public/renovation_data.json
+generate_financial_data.py --> public/financial_data.json + financial_data_1km.json
+                           --> public/heatmaps/{site}/*.png
 ```
 
 ---
@@ -438,7 +494,7 @@ generate_financial_data.py --> public/financial_data.json
 | Task | Notes |
 |------|-------|
 | React + Leaflet 2×2 grid scaffold | CityMap component, heatmap imageOverlay |
-| `baseline.py` full pipeline | Wind / solar / UTCI for all 4 sites |
+| `baseline.py` full pipeline | Wind / solar / UTCI for all 4 sites (500 m + 1 km) |
 | `scenarios.py` A/B/C for all sites | |
 | `score.py` + `export_web.py` | Composite scoring + web export |
 | Almaty windbreak — 3-row birch, N edge, 920 m wide | |
@@ -446,70 +502,61 @@ generate_financial_data.py --> public/financial_data.json
 | Astana windbreak — 3-row elm + veg bug fix | |
 | Mecca shade grove — 513 date palms + veg bug fix | |
 | Mecca Scenario D — 200 × 200 m canopy | |
-| Overture Maps enrichment re-run — Riyadh, Almaty, Mecca | +57 % more buildings for Riyadh |
-| Financial panel — 4-layer NPV model | |
+| **Multi-source building pipeline** | OSM + Overture + MS footprints, spatial merge with IoU dedup + containment removal |
+| **Tree canopy pipeline** | OSM + ground veg + Overture → trees.geojson + sim_vegetation.json |
+| **Per-source CRS reframing** | Fixed coordinate origin mismatch between OSM, Overture, MS buildings |
+| **1 km simulations** | All 4 sites at 1000 × 1000 m with 200 m buffer, using merged buildings + trees |
+| **Simulation–map alignment** | merged_ids.json + sim_vegetation.json ensure heatmaps match building/tree overlays |
+| Financial panel — 4-layer NPV model | Energy, hedonic, demand premium, climate risk |
+| **Financial tooltips** | Hover tooltips for ROI, NPV, Capex, Hedonic uplift, Demand premium, Climate risk avoided, Stranded risk, ΔUTCI, GFA |
 | Toolbar — Lock Map, Project modal, Finance modal | |
-| Toolbar — 500 m / 1 km size toggle (pill buttons) | Frontend only; 1 km simulations pending API recovery |
-| Removed Zoom All button | React.useState crash; button redundant |
+| Toolbar — 500 m / 1 km size toggle | Both scales fully simulated |
 | Project modal — sticky close button | flex column + scroll wrapper |
-| Project modal — merged Sources + Links sections | |
-| Project Idea — neighbourhood selection rationale | Price, demand, gentrification, state programs |
-| Project Idea — per-location detail cards (`pm-location`) | |
-| **Astana coordinate fix** (2026-05-29) | Corrected from 51.161 N / 71.406 E → 51.128 N / 71.430 E |
-| `baseline.py` hardened against weather API outage | Wind + solar complete even when weather endpoint is 500; UUID cached |
-
-### In Progress
-
-| Task | Blocker |
-|------|---------|
-| Astana baseline re-run at correct Bayterek coordinates | **Infrared API broadly down** — `/gis/vegetation`, `/ground-material/collect`, `/weather/location`, `check_area_state` all HTTP 500. Buildings cached (760 OSM + Overture). |
-
-### Pending (after API recovers)
-
-```bash
-# Astana — correct coordinates
-python baseline.py  --site astana
-python scenarios.py --site astana
-python score.py     --site astana
-python export_web.py
-
-# Then update App.jsx modal:
-#   replace "Grade pending re-run" with actual grade
-#   update UTCI figure in Astana location description
-
-# Optional — 1 km polygon runs for all sites
-python baseline.py  --site riyadh && python scenarios.py --site riyadh
-python baseline.py  --site mecca  && python scenarios.py --site mecca
-python baseline.py  --site almaty && python scenarios.py --site almaty
-python score.py --site riyadh && python score.py --site mecca && python score.py --site almaty
-python export_web.py
-```
+| Project modal — neighbourhood selection rationale | Price, demand, gentrification, state programs |
+| Project modal — per-location detail cards | |
+| **Project Idea — methodology update** | Multi-source building pipeline, two analysis scales, vegetation sourcing |
+| **Astana neighbourhood rename** | Kenesary St / Saryarka Ave / Ishim River (matches actual simulated area) |
+| **Mapbox token to env var** | Removed hardcoded token from source code; `VITE_MAPBOX_TOKEN` in `.env` |
+| Mapbox Satellite basemap | Best OSM alignment for Middle East / Central Asia |
 
 ### Known Issues
 
 | Issue | Status |
 |-------|--------|
-| Astana heatmaps in app still from wrong coordinates (51.161 N) | Blocked on API |
-| 1 km polygon simulations not yet run (study area expanded in code only) | Waiting for API recovery |
-| Ground materials always HTTP 500 from Infrared (Mapbox source) | Fallback in place — pipeline continues without surface data |
-| Vegetation fetch HTTP 500 for Astana new coords | Fallback: 0 trees → API uses internal dataset |
+| Ground materials HTTP 500 from Infrared (Mapbox source) | Fallback in place — pipeline continues without surface data |
+| Demand premium uses default market assumptions (5 % cap rate, 3 % rental uplift) | Noted in tooltip; calibrate with local listing data |
+| `postprocess_ndvi.py` removed from pipeline | Was for NDVI-derived canopy; replaced by Overture tree pipeline |
 
 ---
 
 ## 9. Current Simulation Results
 
+### 500 m — Study Area
+
 | City | Grade | Score | UTCI | Wind | Sun | Best Intervention | NPV | ROI |
 |------|-------|-------|------|------|-----|-------------------|-----|-----|
-| **Mecca** | F | 84.8 | 47.41 °C | 2.03 m/s | 10.25 h/d | 200 m canopy (D) | $2.25 M | 1 126 % |
-| **Riyadh** | F | 80.3 | 46.79 °C | 2.74 m/s | 9.86 h/d | 200 m canopy (D) | $1.33 M | 741 % |
-| **Astana** | D* | 58.9* | −28.13 °C* | 6.19 m/s | 6.25 h/d | Asphalt → grass (B) | $75.3 K | 63 % |
-| **Almaty** | A | 4.0 | −0.89 °C | 2.90 m/s | 5.87 h/d | Asphalt → grass (B) | $79.7 K | 89 % |
+| **Mecca** | F | 84.8 | 47.41 °C | 2.03 m/s | 10.25 h/d | 200 m canopy (D) | $1.04 M | 520 % |
+| **Riyadh** | F | 80.3 | 46.79 °C | 2.74 m/s | 9.86 h/d | 200 m canopy (D) | $967 K | 537 % |
+| **Astana** | D | 57.7 | −28.15 °C | 5.75 m/s | 6.11 h/d | Asphalt → grass (B) | $76 K | 63 % |
+| **Almaty** | A | 4.0 | −0.89 °C | 2.90 m/s | 5.87 h/d | Asphalt → grass (B) | $80 K | 89 % |
 
-*Astana figures from prior incorrect coordinates — re-run pending.*
+### 1 km — Analysis Zone
+
+1 km simulations use merged multi-source buildings and Overture tree vegetation. Financial model scales floor area 4× and capex 3.5× from 500 m baseline. Results available in `financial_data_1km.json`.
 
 ---
 
-## 10. Scoring Reference
+## 10. API Token Usage
+
+| Run | Tokens | Notes |
+|-----|--------|-------|
+| 500 m baselines + scenarios (4 sites × wind/solar/UTCI + A/B/C/D) | 6 240 | Initial pipeline — all 4 sites at 500 × 500 m |
+| 1 km baselines (4 sites × wind/solar/UTCI, merged buildings + trees) | 10 000 | Re-simulated at 1000 × 1000 m with 200 m buffer |
+| **Total** | **16 240** | https://app.infrared.city/account |
+
+---
+
+## 11. Scoring Reference
 
 ```
 Composite score = sum(metric_normalised × weight)
